@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -23,52 +23,42 @@
 
 
 /*!
-  Screen ssave class
+  Screen saver class
 */
 class CScreenSaver
 {
 public:
 	/**
 	 * Do configure
-	 * @param hInstance application instance for loading resources
-	 * @param hParent parent window handle
+	 * \param hinst application instance for loading resources
+	 * \param wndParent parent window handle
+	 * \return exit status
 	 */
-	static int Run(IN HINSTANCE hInstance, IN HWND hParent);
+	static int Run(const HINSTANCE hinst, const HWND wndParent);
 
 private:
 	/**
 	 * Processes messages for the window (see MSDN for more info)
-	 * @param hWnd window handle
-	 * @param message message ID
-	 * @param wParam param
-	 * @param lParam param
-	 * @return result
 	 */
-	static LRESULT CALLBACK WndProc(IN HWND hWnd, IN UINT message, IN WPARAM wParam, IN LPARAM lParam);
+	static LRESULT CALLBACK WndProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	/**
 	 * Timer handler (see MSDN for more info)
-	 * @param hWnd handle to the window associated with the timer
-	 * @param uMsg specifies the WM_TIMER message
-	 * @param idEvent specifies the timer's identifier
-	 * @param dwTime specifies the number of milliseconds that have elapsed since the system was started. This is the value returned by the GetTickCount function.
 	 */
-	static void CALLBACK OnTimer(IN HWND hWnd, IN UINT uMsg, IN UINT idEvent, IN DWORD dwTime);
+	static void CALLBACK OnTimer(HWND wnd, UINT msg, UINT_PTR idEvent, DWORD dwTime);
 
 	/**
 	 * Get file list
-	 * @param pszPath path to folder
-	 * @param fIncludeSubdir flag to inlude subfolders
-	 * @param setFileExt set of file extensions (filter)
-	 * @param listFiles file list
-	 * @return found files count
+	 * \param path path to folder
+	 * \param fileList file list
+	 * \return found files count
 	 */
-	static UINT GetFileList(IN LPCWSTR lpszPath, IN bool fIncludeSubdir, IN const set<wstring>& setFileExt, OUT list<wstring>& listFiles);
+	static size_t GetFileList(const wchar_t* path, list<wstring>& fileList);
 
 private:
 	//Class variables
-	static list<wstring>	m_listFiles;	///< List of source files to show in imitated IDE
-	static HWND				m_hRichEdit;	///< RichEdit window handle
-	static CIDEImitate*		m_pIDEImitate;	///< IDE imitate implementation
-	static map<CIDEImitate::ImagePlace, int> m_mapCoordinates;	///< Coordinates of images
+	static list<wstring>	_FileList;		///< List of source files to show in imitated IDE
+	static HWND				_RichEdit;		///< RichEdit window handle
+	static CIDEImitate*		_IDEImitate;	///< IDE imitate implementation
+	static map<CIDEImitate::ImagePlace, int> _Coordinates;	///< Coordinates of images
 };

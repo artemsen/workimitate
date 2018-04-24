@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -34,51 +34,49 @@ public:
 	enum ImagePlace {
 		IPTop,
 		IPBottom,
-		IPLeft,
-		IPRight	//Unused - Not implemented
+		IPLeft
 	};
 
 	/**
 	 * Get resource image ID (0 if unused)
-	 * @param enuType image place identifier
-	 * @return image ID
+	 * \param type image place identifier
+	 * \return image ID
 	 */
-	virtual UINT_PTR GetImageId(IN ImagePlace /*enuType*/) const	{ return 0; }
+	virtual UINT_PTR GetImageId(const ImagePlace type) const = 0;
 
 	/**
 	 * Get IDE icon ID
-	 * @return icon ID
+	 * \return icon ID
 	 */
-	virtual UINT_PTR GetIconId(void) const = 0;
+	virtual UINT_PTR GetIconId() const = 0;
 
 	/**
 	 * Get IDE window title template
-	 * @return window title template
+	 * \return window title template
 	 */
-	virtual LPCWSTR GetWndTitle(void) const = 0;
+	virtual const wchar_t* GetWndTitle() const = 0;
 
 public:
 
 	/**
 	 * Load images
-	 * @param hInstance instance of appliaction
-	 * @return boolean result (false if error)
+	 * \param hInstance instance of appliaction
+	 * \return boolean result (false if error)
 	 */
-	bool LoadImages(IN HINSTANCE hInstance);
+	bool LoadImages(const HINSTANCE hinst);
 
 	/**
 	 * Get image image ID (0 if unused)
-	 * @param enuType image place identifier
-	 * @return pointer to instance of image class
+	 * \param type image place identifier
+	 * \return pointer to instance of image class
 	 */
-	CImage*	GetImage(IN ImagePlace enuType);
+	CImage* GetImage(const ImagePlace type);
 
 private:
 	//Class variables
-	CImage	m_imgTop;		///< Top image
-	CImage	m_imgBottom;	///< Bottom image
-	CImage	m_imgLeft;		///< Left image
-	//CImage	m_imgRight;		//Not implemented
+	CImage	_ImageTop;		///< Top image
+	CImage	_ImageBottom;	///< Bottom image
+	CImage	_ImageLeft;		///< Left image
 };
 
 
@@ -88,7 +86,8 @@ private:
 class CIDEMS : public CIDEImitate
 {
 public:
-	COLORREF GetColorByBlockType(IN BlockType enuType) const;
+	//From CParser
+	COLORREF GetColorByBlockType(const BlockType type) const;
 };
 
 
@@ -98,9 +97,10 @@ public:
 class CIDEVC6 : public CIDEMS
 {
 public:
-	UINT_PTR GetImageId(IN ImagePlace enuType) const;
-	UINT_PTR GetIconId(void) const	{ return IDI_VC6; }
-	LPCWSTR GetWndTitle(void) const	{ return L"WorkImitate - Microsoft Visual C++ - [%s]"; }
+	//From CIDEImitate
+	UINT_PTR GetImageId(const ImagePlace type) const;
+	UINT_PTR GetIconId() const			{ return IDI_VC6; }
+	const wchar_t* GetWndTitle() const	{ return L"WorkImitate - Microsoft Visual C++ - [%s]"; }
 };
 
 
@@ -110,9 +110,12 @@ public:
 class CIDEVS9 : public CIDEMS
 {
 public:
-	UINT_PTR GetImageId(IN ImagePlace enuType) const;
-	UINT_PTR GetIconId(void) const			{ return IDI_VS9; }
-	LPCWSTR GetWndTitle(void) const			{ return L"WorkImitate - Microsoft Visual Studio [%s]"; }
+	//From CIDEImitate
+	UINT_PTR GetImageId(const ImagePlace type) const;
+	UINT_PTR GetIconId() const			{ return IDI_VS9; }
+	const wchar_t* GetWndTitle() const	{ return L"WorkImitate - Microsoft Visual Studio [%s]"; }
+
+	//From CParser
 	BlockType GetBlockType(IN const char* pszWord);
 };
 
@@ -123,11 +126,14 @@ public:
 class CIDECW : public CIDEImitate
 {
 public:
-	UINT_PTR GetImageId(IN ImagePlace enuType) const;
-	UINT_PTR GetIconId(void) const			{ return IDI_CW; }
-	LPCWSTR GetWndTitle(void) const			{ return L"Metrowerks CodeWarrior - [%s]"; }
-	COLORREF GetColorByBlockType(IN BlockType enuType) const;
-	BlockType GetBlockType(IN const char* pszWord);
+	//From CIDEImitate
+	UINT_PTR GetImageId(const ImagePlace type) const;
+	UINT_PTR GetIconId() const			{ return IDI_CW; }
+	const wchar_t* GetWndTitle() const	{ return L"Metrowerks CodeWarrior - [%s]"; }
+
+	//From CParser
+	COLORREF GetColorByBlockType(const BlockType type) const;
+	BlockType GetBlockType(const char* word);
 };
 
 
@@ -137,7 +143,8 @@ public:
 class CIDECarbide : public CIDEImitate
 {
 public:
-	UINT_PTR GetImageId(IN ImagePlace enuType) const;
-	UINT_PTR GetIconId(void) const			{ return IDI_CARBIDE; }
-	LPCWSTR GetWndTitle(void) const			{ return L"Carbide C/C++ - %s - Carbide.c++"; }
+	//From CIDEImitate
+	UINT_PTR GetImageId(const ImagePlace type) const;
+	UINT_PTR GetIconId() const			{ return IDI_CARBIDE; }
+	const wchar_t* GetWndTitle() const	{ return L"Carbide C/C++ - %s - Carbide.c++"; }
 };

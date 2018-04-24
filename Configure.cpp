@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -16,112 +16,133 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
-/*! \file Configure.cpp
-
+/*!
     Implementation of the CConfigure class
 */
 
-#include "StdAfx.h"
 #include "Configure.h"
 #include "Settings.h"
 #include "Resource.h"
 
 
-int CConfigure::Run(IN HINSTANCE hInstance, IN HWND hParent)
+int CConfigure::Run(const HINSTANCE hinst, const HWND wndParent)
 {
-	return static_cast<int>(DialogBox(hInstance, (LPCTSTR)IDD_CONFIGURE, hParent, (DLGPROC)WndProc));
+	return static_cast<int>(DialogBox(hinst, (LPCTSTR)IDD_CONFIGURE, wndParent, reinterpret_cast<DLGPROC>(&CConfigure::WndProc)));
 }
 
 
-LRESULT CALLBACK CConfigure::WndProc(IN HWND hWnd, IN UINT uMsg, IN WPARAM wParam, IN LPARAM /*lParam*/)
+LRESULT CALLBACK CConfigure::WndProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch (uMsg) {
+	switch (msg) {
 		case WM_INITDIALOG: {
-			CSettings objSet;
-			SetDlgItemText(hWnd, IDC_EDIT1, objSet.Path);
-			SendDlgItemMessage(hWnd, IDC_CHECK1, BM_SETCHECK, objSet.IncludeSubFolders ? BST_CHECKED : BST_UNCHECKED, 0);
+			Settings* settings = Settings::Get();
+			SetDlgItemText(wnd, IDC_PATH_EDIT, settings->Path.c_str());
+			SetDlgItemText(wnd, IDC_EXTFILTER_EDIT, settings->ExtFilter.c_str());
+			SendDlgItemMessage(wnd, IDC_SUBDIR_CHECK, BM_SETCHECK, settings->IncludeSubFolders ? BST_CHECKED : BST_UNCHECKED, 0);
 
-			LRESULT nAddedId;
-			nAddedId = SendDlgItemMessage(hWnd, IDC_COMBO1, CB_ADDSTRING, 0, (LPARAM)L"Microsoft Visual Studio 2008");
-			SendDlgItemMessage(hWnd, IDC_COMBO1, CB_SETITEMDATA, nAddedId, (LPARAM)CSettings::enuVS9);
-			nAddedId = SendDlgItemMessage(hWnd, IDC_COMBO1, CB_ADDSTRING, 0, (LPARAM)L"Microsoft Visual C++ 6");
-			SendDlgItemMessage(hWnd, IDC_COMBO1, CB_SETITEMDATA, nAddedId, (LPARAM)CSettings::enuVC6);
-			nAddedId = SendDlgItemMessage(hWnd, IDC_COMBO1, CB_ADDSTRING, 0, (LPARAM)L"Metrowerks CodeWarrior");
-			SendDlgItemMessage(hWnd, IDC_COMBO1, CB_SETITEMDATA, nAddedId, (LPARAM)CSettings::enuCW);
-			nAddedId = SendDlgItemMessage(hWnd, IDC_COMBO1, CB_ADDSTRING, 0, (LPARAM)L"Nokia Carbide.c++");
-			SendDlgItemMessage(hWnd, IDC_COMBO1, CB_SETITEMDATA, nAddedId, (LPARAM)CSettings::enuCarbide);
+			LRESULT addedId;
+			addedId = SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Microsoft Visual Studio 2008");
+			SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_SETITEMDATA, addedId, (LPARAM)Settings::enuVS9);
+			addedId = SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Microsoft Visual C++ 6");
+			SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_SETITEMDATA, addedId, (LPARAM)Settings::enuVC6);
+			addedId = SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Metrowerks CodeWarrior");
+			SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_SETITEMDATA, addedId, (LPARAM)Settings::enuCW);
+			addedId = SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Nokia Carbide.c++");
+			SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_SETITEMDATA, addedId, (LPARAM)Settings::enuCarbide);
 
-			SendDlgItemMessage(hWnd, IDC_COMBO1, CB_SETCURSEL, (WPARAM)objSet.IDE, 0);
-			SendDlgItemMessage(hWnd, IDC_CHECK2, BM_SETCHECK, objSet.EnhColor ? BST_CHECKED : BST_UNCHECKED, 0);
-			SendMessage(hWnd, WM_COMMAND, MAKELONG(IDC_COMBO1, CBN_SELENDOK), 0);
+			SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_SETCURSEL, (WPARAM)settings->IDE, 0);
+			SendMessage(wnd, WM_COMMAND, MAKELONG(IDC_IDETYPE_COMBO, CBN_SELENDOK), 0);
 
-			SendDlgItemMessage(hWnd, IDC_SLIDER1, TBM_SETRANGE, (WPARAM)TRUE, MAKELPARAM(10, 1000));
-			SendDlgItemMessage(hWnd, IDC_SLIDER1, TBM_SETTICFREQ, 50, 0);
-			SendDlgItemMessage(hWnd, IDC_SLIDER1, TBM_SETPOS, (WPARAM)TRUE, objSet.Speed);
-			WndProc(hWnd, WM_HSCROLL, MAKELONG(SB_THUMBTRACK, objSet.Speed), 0);
+			SendDlgItemMessage(wnd, IDC_TYPINGSPEED_SLIDER, TBM_SETRANGE, (WPARAM)TRUE, MAKELPARAM(10, 200));
+			SendDlgItemMessage(wnd, IDC_TYPINGSPEED_SLIDER, TBM_SETPOS, (WPARAM)TRUE, settings->Speed);
+			WndProc(wnd, WM_HSCROLL, MAKELONG(SB_THUMBTRACK, settings->Speed), 0);
+
+			static HICON icon = LoadIcon(GetModuleHandle(NULL), (LPCTSTR)IDI_WORKIMITATE);
+			SendMessage(wnd, WM_SETICON, ICON_BIG, (LPARAM)icon);
 			}
 			return TRUE;
 		case WM_HSCROLL:
 			if (LOWORD(wParam) == SB_THUMBTRACK) {
 				wchar_t szVal[32];
-				if (HIWORD(wParam) == 1000)
-					wcscpy_s(szVal, L"1 sec");
-				else
-					swprintf(szVal, sizeof(szVal) / sizeof(wchar_t), L"%i msec", HIWORD(wParam));
-				SetDlgItemText(hWnd, IDC_TYPINGSPEED, szVal);
+				swprintf(szVal, L"%i msec", HIWORD(wParam));
+				SetDlgItemText(wnd, IDC_TYPINGSPEED_STATIC, szVal);
 			}
 			return FALSE;
+		case WM_NOTIFY:
+			switch (((LPNMHDR)lParam)->code) {
+				case NM_CLICK:
+				case NM_RETURN:
+				{
+					const PNMLINK nmLink = reinterpret_cast<const PNMLINK>(lParam);
+					if (nmLink->hdr.idFrom == IDC_WEBSITE_LINK)
+						ShellExecute(NULL, L"open", L"http://workimitate.sourceforge.net", NULL, NULL, SW_SHOW);
+					else if (nmLink->hdr.idFrom == IDC_EMAIL_LINK)
+						ShellExecute(NULL, L"open", L"mailto:artemsen@gmail.com", NULL, NULL, SW_SHOW);
+				}
+				break;
+				default:
+					break;
+			}
+			break;
 		case WM_COMMAND:
 			switch (LOWORD(wParam)) {
 				case IDOK:
 					{
-					CSettings objSet(false);
-					wchar_t pszPath[MAX_PATH];
-					GetDlgItemText(hWnd, IDC_EDIT1, pszPath, MAX_PATH / sizeof(wchar_t));
-					wcscpy_s(objSet.Path, sizeof(objSet.Path) / sizeof(wchar_t), pszPath);
-					objSet.IncludeSubFolders = (SendDlgItemMessage(hWnd, IDC_CHECK1, BM_GETCHECK, 0, 0) == BST_CHECKED);
-					objSet.EnhColor = (SendDlgItemMessage(hWnd, IDC_CHECK2, BM_GETCHECK, 0, 0) == BST_CHECKED);
+						Settings* settings = Settings::Get();
 
-					LRESULT nCurrItem = SendDlgItemMessage(hWnd, IDC_COMBO1, CB_GETCURSEL, 0, 0);
-					objSet.IDE = (CSettings::ImitateIDE)SendDlgItemMessage(hWnd, IDC_COMBO1, CB_GETITEMDATA, (WPARAM)nCurrItem, 0);
+						settings->Path.resize(SendDlgItemMessage(wnd, IDC_PATH_EDIT, WM_GETTEXTLENGTH, 0, 0) + 1);
+						GetDlgItemText(wnd, IDC_PATH_EDIT, &settings->Path[0], static_cast<int>(settings->Path.size()));
 
-					objSet.Speed = static_cast<UINT>(SendDlgItemMessage(hWnd, IDC_SLIDER1, TBM_GETPOS, 0, 0));
+						settings->ExtFilter.resize(SendDlgItemMessage(wnd, IDC_EXTFILTER_EDIT, WM_GETTEXTLENGTH, 0, 0) + 1);
+						GetDlgItemText(wnd, IDC_EXTFILTER_EDIT, &settings->ExtFilter[0], static_cast<int>(settings->ExtFilter.size()));
 
-					objSet.Save();
-					EndDialog(hWnd, LOWORD(wParam));
+						settings->IncludeSubFolders = (SendDlgItemMessage(wnd, IDC_SUBDIR_CHECK, BM_GETCHECK, 0, 0) == BST_CHECKED);
+
+						LRESULT currItem = SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_GETCURSEL, 0, 0);
+						settings->IDE = static_cast<Settings::ImitateIDE>(SendDlgItemMessage(wnd, IDC_IDETYPE_COMBO, CB_GETITEMDATA, (WPARAM)currItem, 0));
+
+						settings->Speed = static_cast<UINT>(SendDlgItemMessage(wnd, IDC_TYPINGSPEED_SLIDER, TBM_GETPOS, 0, 0));
+
+						Settings::Save();
+						EndDialog(wnd, LOWORD(wParam));
 					}
 					return TRUE;
 				case IDCANCEL:
-					EndDialog(hWnd, LOWORD(wParam));
+					EndDialog(wnd, LOWORD(wParam));
 					return TRUE;
-				case IDC_BUTTON1:
+				case IDC_BROWSE_BUTTON:
 					{
-					TCHAR cn[MAX_PATH];
-					BROWSEINFO bi;
-					ZeroMemory (&bi, sizeof(bi));
-					bi.hwndOwner = hWnd;
-					bi.ulFlags = BIF_RETURNONLYFSDIRS;
-					bi.lpszTitle = L"Please, select folder with source files (cpp, h, hpp, ...etc)";
-					bi.lpfn = &CConfigure::BFFCallBack;
-					bi.lParam = (LPARAM)hWnd;
-					LPITEMIDLIST pList = SHBrowseForFolder(&bi);
-					if (SHGetPathFromIDList(pList, cn))
-						SetDlgItemText(hWnd, IDC_EDIT1, cn);
+						TCHAR cn[MAX_PATH];
+						BROWSEINFO bi;
+						ZeroMemory (&bi, sizeof(bi));
+						bi.hwndOwner = wnd;
+						bi.ulFlags = BIF_RETURNONLYFSDIRS;
+						bi.lpszTitle = L"Please, select folder with source files (cpp, h, hpp, ...etc)";
+						bi.lpfn = &CConfigure::BFFCallBack;
+						bi.lParam = (LPARAM)wnd;
+						LPITEMIDLIST pList = SHBrowseForFolder(&bi);
+						if (SHGetPathFromIDList(pList, cn))
+							SetDlgItemText(wnd, IDC_PATH_EDIT, cn);
 					}
 					return TRUE;
+				default:
+					break;
 			}
+			break;
+		default:
 			break;
 	}
 	return 0;
 }
 
-int CALLBACK CConfigure::BFFCallBack(IN HWND hWnd, IN UINT uMsg, IN LPARAM /*lParam*/, IN LPARAM lpData)
+
+int CALLBACK CConfigure::BFFCallBack(HWND wnd, UINT msg, LPARAM /*lParam*/, LPARAM lpData)
 {
-	if (uMsg == BFFM_INITIALIZED) {
+	if (msg == BFFM_INITIALIZED) {
 		//Set initial path
 		wchar_t pszPath[MAX_PATH];
-		GetDlgItemText((HWND)lpData, IDC_EDIT1, pszPath, MAX_PATH / sizeof(wchar_t));
-		SendMessage(hWnd, BFFM_SETSELECTION, TRUE, (LPARAM)pszPath);
+		GetDlgItemText((HWND)lpData, IDC_PATH_EDIT, pszPath, MAX_PATH / sizeof(wchar_t));
+		SendMessage(wnd, BFFM_SETSELECTION, TRUE, (LPARAM)pszPath);
 	}
 	return 0;
 }

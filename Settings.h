@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -22,18 +22,24 @@
 /*!
   Work with programm settings
 */
-class CSettings
+struct Settings
 {
+private:
+	Settings() {}
+	static Settings* _Settings;
+
 public:
+	/**
+	 * Get settings implementation
+	 * \return pointer to settings implementation
+	 */
+	static Settings* Get();
 
 	/**
-	 * Constructor
-	 * param fLoadSettings indication to load settings (true if needed)
+	 * Save settings
+	 * \return result (false if error)
 	 */
-	CSettings(IN bool fLoadSettings = true);
-	//! Default destructor
-	~CSettings(void);
-
+	static bool Save();
 
 	//! Types of imitated IDE
 	enum ImitateIDE {
@@ -44,24 +50,9 @@ public:
 	};
 
 	//Settings values
-	wchar_t			Path[MAX_PATH];		///< Path
+	wstring			Path;				///< Path
+	wstring			ExtFilter;			///< File extensions filter
 	bool			IncludeSubFolders;	///< Include subfolders flag
-	bool			EnhColor;			///< Enhanced color syntax
 	ImitateIDE		IDE;				///< Imitated IDE type
 	UINT			Speed;				///< Typing speed
-	set<wstring>	Exts;				///< Files extensions
-
-
-	/**
-	 * Load settings
-	 * @return result (false if error)
-	 */
-	bool Load(void);
-
-
-	/**
-	 * Save settings
-	 * @return result (false if error)
-	 */
-	bool Save(void);
 };

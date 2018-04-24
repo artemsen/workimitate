@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "Common.h"
+
 
 /*!
   Load and draw images
@@ -25,50 +27,48 @@
 class CImage  
 {
 public:
-	//! Default constructor
 	CImage();
-	//! Default destructor
 	~CImage();
 
 	/**
 	 * Load image from resources
-	 * @param hInstance instance of application
-	 * @param nIDRes ID image in resources
-	 * @return boolean result (true if image loaded)
+	 * \param hinst instance of application
+	 * \param resId ID image in resources
+	 * \return boolean result (true if image loaded)
 	 */
-	bool Load(IN HINSTANCE hInstance, IN UINT_PTR nIDRes);
+	bool Load(const HINSTANCE hinst, const UINT_PTR resId);
 
 	/**
 	 * Draw image
-	 * @param hDC output device context handle
-	 * @param nX horizontal coordinate
-	 * @param nY vertical coordinate
-	 * @param nWidth width of image
-	 * @param nHeight height of image
+	 * \param dc output device context handle
+	 * \param x horizontal coordinate
+	 * \param y vertical coordinate
+	 * \param width width of image
+	 * \param height height of image
 	 */
-	void Draw(IN HDC hDC, IN LONG nX, IN LONG nY, IN LONG nWidth = 0, IN LONG nHeight = 0);
+	void Draw(const HDC dc, const int x, const int y, const int width = 0, const int height = 0);
 
 	/**
-	 * Get width of image in pixels for specified DC
-	 * @param hDC output device context handle
-	 * @return images width
+	 * Image properties: Get image width
+	 * \return image width
 	 */
-	LONG GetWidth(IN HDC hDC) const;
+	inline size_t GetWidth() const		{ return _ImgWidth; }
 
 	/**
-	 * Get height of image in pixels for specified DC
-	 * @param hDC output device context handle
-	 * @return images height
+	 * Image properties: Get image height
+	 * \return image height
 	 */
-	LONG GetHeight(IN HDC hDC) const;
+	inline size_t GetHeight() const		{ return _ImgHeight; }
 
 	/**
 	 * Check for correct loaded image
-	 * @return true if image loaded
+	 * \return true if image loaded
 	 */
-	bool IsLoaded(void) const		{ return m_pPicture != NULL; }
+	inline bool IsLoaded() const		{ return _Bitmap != NULL; }
 
 private:
 	//Class variables
-	CComPtr<IPicture> m_pPicture;	///< Picture interface pointer
+	size_t	_ImgWidth;	///< Image width
+	size_t	_ImgHeight;	///< Image height
+	HBITMAP	_Bitmap;	///< Image bitmap
 };

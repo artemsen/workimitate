@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -26,9 +26,9 @@ class CParser
 {
 public:
 	//! Default constructor
-	CParser(void);
+	CParser();
 	//! Default destructor
-	virtual ~CParser(void);
+	virtual ~CParser();
 
 	//! Block types
 	enum BlockType {
@@ -45,57 +45,65 @@ public:
 
 	/**
 	 * Load content from file
-	 * @param pszFileName a file name
-	 * @return boolean result (true if file processed)
+	 * \param fileName a file name
+	 * \return boolean result (true if file processed)
 	 */
-	bool LoadContent(IN LPCWSTR lpszFileName);
+	bool LoadContent(const wchar_t* fileName);
 
 	/**
 	 * Set dummy content
-	 * @param pszContent a dummy content
+	 * \param content a content
 	 */
-	void SetContent(IN const char* pszContent);
+	void SetContent(const char* content);
 
 	/**
 	 * Get next symbol and block type from content
-	 * @param pSymbol reference to save next symbol
-	 * @return block type of next symbol
+	 * \param symbol reference to save next symbol
+	 * \return block type of next symbol
 	 */
-	virtual BlockType GetNextSymbol(OUT char* pSymbol);
+	virtual BlockType GetNextSymbol(char* symbol);
 
 	/**
 	 * Get color for defined block type
-	 * @param enuType a block type
-	 * @return color for referred above type
+	 * \param enuType a block type
+	 * \return color for referred above type
 	 */
-	virtual COLORREF GetColorByBlockType(IN BlockType enuType) const;
+	virtual COLORREF GetColorByBlockType(const BlockType type) const;
 
 
 protected:
 	/**
-	 * Get block type for reffered word
-	 * @param pszWord next word in content
-	 * @return block type for next word
+	 * Check for inclide word in list
+	 * \param word checked word
+	 * \param checkList list
+	 * \param listSize list size
+	 * \return true if contain
 	 */
-	virtual BlockType GetBlockType(IN const char* pszWord);
+	bool Contain(const char* word, const char* checkList[], const size_t listSize) const;
+
+	/**
+	 * Get block type for reffered word
+	 * \param word next word in content
+	 * \return block type for next word
+	 */
+	virtual BlockType GetBlockType(const char* word);
 
 	/**
 	 * Define next block
 	 */
-	virtual void DefineNextBlock(void);
+	virtual void DefineNextBlock();
 
 
 private:
 	/**
 	 * Reset internal state
 	 */
-	void Reset(void);
-
+	void Reset();
 
 private:
 	//Class variables
-	string		m_strFileContent;	///< File content
-	BlockType	m_enuBlockType;		///< Current block type
-	size_t		m_nCurrentPos;		///< Current position in file
-	size_t		m_nEndBlockPos;		///< Last position in current block
+	string		_Content;		///< File content
+	BlockType	_BlockType;		///< Current block type
+	size_t		_CurrentPos;	///< Current position in file
+	size_t		_EndBlockPos;	///< Last position in current block
 };

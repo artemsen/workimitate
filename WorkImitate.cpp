@@ -16,61 +16,105 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
-/*! \file WorkImitate.cpp
-
+/*!
     Defines the entry point for the application
 */
 
-#include "stdafx.h"
-#include "Preview.h"
+#include "Common.h"
 #include "Configure.h"
+#include "Preview.h"
 #include "ScreenSaver.h"
 
 
 /**
  * Programm entry point (see MSDN for more info)
- * @param hInstance application instance
- * @param hPrevInstance previous application instance
- * @param lpCmdLine command line (arguments)
- * @param nCmdShow window type
- * @return result
  */
 int APIENTRY WinMain(IN HINSTANCE hInstance, IN HINSTANCE /*hPrevInstance*/, IN LPSTR lpCmdLine, IN int /*nCmdShow*/)
 {
-	//Process command line options
-	enum SSMode {
-		SSMScrSaver,
-		SSMPreview,
-		SSMConfigure
-	} enuMode;
-	
-	if (strstr(lpCmdLine, "/c") == lpCmdLine)		//Configure mode
-		enuMode = SSMConfigure;
-	else if (strstr(lpCmdLine, "/p") == lpCmdLine)	//Preview mode
-		enuMode = SSMPreview;
-	else
-		enuMode = SSMScrSaver;
+	int retCode = -1;
 
-	HWND hWndParent = NULL;
-	if (enuMode == SSMConfigure || enuMode == SSMPreview) {
-		//Define parent window handle
-#pragma warning (disable: 4312) 
-		hWndParent = (HWND)atoi(lpCmdLine + 3);
-#pragma warning (default: 4312) 
-		if (!hWndParent) {
-			MessageBox(NULL, L"Unable to get window handle", NULL, MB_ICONERROR | MB_OK);
-			return 1;
+	char mode = 0;	//By default - install query
+	HWND wndParent = NULL;
+
+	//Parse command line
+	if (lstrlenA(lpCmdLine) != 0) {
+		while (*lpCmdLine && !isalpha(*lpCmdLine))
+			++lpCmdLine;
+
+		if (*lpCmdLine) {
+			mode = *lpCmdLine++;
+			
+			//Get window handle
+			while (*lpCmdLine && !isdigit(*lpCmdLine))
+				++lpCmdLine;
+
+			if (*lpCmdLine)
+				wndParent = reinterpret_cast<HWND>(atoi(lpCmdLine));
 		}
 	}
 
-	switch (enuMode) {
-		case SSMPreview:	//Preview mode
-			return CPreview::Run(hInstance, hWndParent);
-		case SSMConfigure:	//Configure mode
-			return CConfigure::Run(hInstance, hWndParent);
-		case SSMScrSaver:	//Screen saver mode
-			return CScreenSaver::Run(hInstance, hWndParent);
+	switch (mode) {
+		case 'c':
+		case 'C':
+			//Configure mode
+			retCode = CConfigure::Run(hInstance, wndParent);
+			break;
+		case 'p':
+		case 'P':
+			//Preview mode
+			retCode = CPreview::Run(hInstance, wndParent);
+			break;
+		case 's':
+		case 'S':
+			//Screen saver mode
+			retCode = CScreenSaver::Run(hInstance, wndParent);
+			break;
+		case'i':
+		case'I':
+			//Install mode
+			{
+				wstring moduleName(MAX_PATH, 0);
+				moduleName.resize(GetModuleFileName(NULL, &moduleName[0], moduleName.size() - 1));
+				wstring scrsaverName(MAX_PATH, 0);
+				scrsaverName.resize(GetSystemDirectory(&scrsaverName[0], scrsaverName.size() - 1));
+				scrsaverName += L"\\WorkImitate.scr";
+
+				typedef BOOL (WINAPI *LPFN_Wow64DisableWow64FsRedirection)(PVOID*);
+				LPFN_Wow64DisableWow64FsRedirection fnWow64DisableWow64FsRedirection =
+					(LPFN_Wow64DisableWow64FsRedirection)GetProcAddress(GetModuleHandle(L"kernel32"), "Wow64DisableWow64FsRedirection");
+				if (fnWow64DisableWow64FsRedirection != NULL) {
+					PVOID oldValue;
+					fnWow64DisableWow64FsRedirection(&oldValue);
+				}
+
+				CopyFile(moduleName.c_str(), scrsaverName.c_str(), FALSE);
+			}
+			break;
+		default:
+			//Install query mode
+			if (MessageBox(NULL, L"Do you want to install Work Imitate screen saver ?", L"Work Imitate screen saver", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+				wstring moduleName(MAX_PATH, 0);
+				moduleName.resize(GetModuleFileName(NULL, &moduleName[0], moduleName.size() - 1));
+				ShellExecute(NULL, L"runas", moduleName.c_str(), L"/i", NULL, SW_SHOWNORMAL);
+
+				wstring scrsaverName(MAX_PATH, 0);
+				scrsaverName.resize(GetSystemDirectory(&scrsaverName[0], scrsaverName.size() - 1));
+				scrsaverName += L"\\WorkImitate.scr";
+
+				typedef BOOL (WINAPI *LPFN_Wow64DisableWow64FsRedirection)(PVOID*);
+				LPFN_Wow64DisableWow64FsRedirection fnWow64DisableWow64FsRedirection =
+					(LPFN_Wow64DisableWow64FsRedirection)GetProcAddress(GetModuleHandle(L"kernel32"), "Wow64DisableWow64FsRedirection");
+				if (fnWow64DisableWow64FsRedirection != NULL) {
+					PVOID oldValue;
+					fnWow64DisableWow64FsRedirection(&oldValue);
+				}
+
+				wstring cmd = L"desk.cpl,InstallScreenSaver ";
+				cmd += scrsaverName;
+				ShellExecute(NULL, L"open", L"rundll32.exe", cmd.c_str(), NULL, SW_SHOWNORMAL);
+			}
+			break;
 	}
 
-	return 0;
+	return retCode;
 }

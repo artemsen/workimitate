@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -17,105 +17,94 @@
  **************************************************************************/
 
 
-/*! \file Settings.cpp
-
-    Implementation of the CSettings class
+/*!
+    Implementation of the Settings
 */
 
-#include "StdAfx.h"
+#include "Common.h"
 #include "Settings.h"
 
 //! Path to registry to save/load settings
 #define REG_SETTINGS	L"SOFTWARE\\WorkImitate"
 #define REG_PATH		L"Path"
 #define REG_INCSF		L"InclSubFolders"
-#define REG_ECS			L"EnhColorSyntax"
+#define REG_EXTFILTER	L"ExtFilter"
 #define REG_IDE			L"IDE"
 #define REG_SPEED		L"Speed"
 
+Settings* Settings::_Settings = NULL;
 
-CSettings::CSettings(IN bool fLoadSettings /*= true*/)
+
+Settings* Settings::Get()
 {
-	if (fLoadSettings)
-		Load();
-}
+	if (_Settings == NULL) {
+		_Settings = new Settings();
+		
+		//Set default values
+		_Settings->IncludeSubFolders = true;
+		_Settings->IDE = enuVS9;
+		_Settings->Speed = 50;
+		_Settings->ExtFilter = L"h,hpp,hrh,c,cpp";
 
+		//Load settings from registry
+		HKEY regKey;
+		DWORD result = RegOpenKeyEx(HKEY_CURRENT_USER, REG_SETTINGS, 0, KEY_READ, &regKey);
+		if (result == ERROR_SUCCESS) {
+			_Settings->Path.resize(1024);
+			DWORD dataLen = static_cast<DWORD>(_Settings->Path.size());
+			RegQueryValueEx(regKey, REG_PATH, NULL, NULL, reinterpret_cast<LPBYTE>(&_Settings->Path[0]), &dataLen);
+			_Settings->Path.resize(dataLen);
 
-CSettings::~CSettings(void)
-{
-}
+			wstring extFilter(1024, 0);
+			dataLen = extFilter.size();
+			if (RegQueryValueEx(regKey, REG_EXTFILTER, NULL, NULL, reinterpret_cast<LPBYTE>(&extFilter[0]), &dataLen) == ERROR_SUCCESS) {
+				extFilter.resize(dataLen);
+				if (!extFilter.empty())
+					_Settings->ExtFilter = extFilter;
+			}
 
+			dataLen = sizeof(DWORD);
+			DWORD dwordData = 0;
+			RegQueryValueEx(regKey, REG_INCSF, NULL, NULL, reinterpret_cast<LPBYTE>(&dwordData), &dataLen);
+			_Settings->IncludeSubFolders = dwordData != 0;
 
-bool CSettings::Load(void)
-{
-	//Set default values
-	wcscpy_s(Path, sizeof(Path) / sizeof(wchar_t), L"");
-	IncludeSubFolders = true;
-	EnhColor = true;
-	IDE = enuVS9;
-	Speed = 50;
+			dataLen = sizeof(DWORD);
+			dwordData = 0;
+			RegQueryValueEx(regKey, REG_IDE, NULL, NULL, reinterpret_cast<LPBYTE>(&dwordData), &dataLen);
+			_Settings->IDE = static_cast<ImitateIDE>(dwordData);
 
-	/* Not implemented - always constant set */
-	Exts.insert(L"h");
-	Exts.insert(L"hpp");
-	Exts.insert(L"hrh");
-	Exts.insert(L"c");
-	Exts.insert(L"cpp");
+			dataLen = sizeof(DWORD);
+			dwordData = 0;
+			RegQueryValueEx(regKey, REG_SPEED, NULL, NULL, reinterpret_cast<LPBYTE>(&dwordData), &dataLen);
+			_Settings->Speed = dwordData;
 
-	HKEY hKey;
-	DWORD dwResult = RegOpenKeyEx(HKEY_CURRENT_USER, REG_SETTINGS, 0, KEY_READ, &hKey);
-	if (dwResult == ERROR_SUCCESS) {
-
-		DWORD dwDataLen = sizeof(Path);
-		RegQueryValueEx(hKey, REG_PATH, NULL, NULL, (LPBYTE)&Path, &dwDataLen);
-
-		dwDataLen = sizeof(DWORD);
-		DWORD dwData = 0;
-		RegQueryValueEx(hKey, REG_INCSF, NULL, NULL, (LPBYTE)&dwData, &dwDataLen);
-		IncludeSubFolders = dwData != 0;
-
-		dwDataLen = sizeof(DWORD);
-		dwData = 0;
-		RegQueryValueEx(hKey, REG_ECS, NULL, NULL, (LPBYTE)&dwData, &dwDataLen);
-		EnhColor = dwData != 0;
-
-		dwDataLen = sizeof(DWORD);
-		dwData = 0;
-		RegQueryValueEx(hKey, REG_IDE, NULL, NULL, (LPBYTE)&dwData, &dwDataLen);
-		IDE = (ImitateIDE)dwData;
-
-		dwDataLen = sizeof(DWORD);
-		dwData = 0;
-		RegQueryValueEx(hKey, REG_SPEED, NULL, NULL, (LPBYTE)&dwData, &dwDataLen);
-		Speed = dwData;
-
-		RegCloseKey(hKey);
+			RegCloseKey(regKey);
+		}
 	}
 
-	return true;	//If error - use default settings
+	return _Settings;
 }
 
 
-bool CSettings::Save(void)
+bool Settings::Save()
 {
-	HKEY hKey;
-	DWORD dwResult = RegCreateKeyEx(HKEY_CURRENT_USER, REG_SETTINGS, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL);
-	if (dwResult == ERROR_SUCCESS) {
-		RegSetValueEx(hKey, REG_PATH, 0, REG_SZ, (LPBYTE)Path, (DWORD)_tcslen(Path) * sizeof(TCHAR));
+	HKEY regKey;
+	DWORD result = RegCreateKeyEx(HKEY_CURRENT_USER, REG_SETTINGS, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &regKey, NULL);
+	if (result == ERROR_SUCCESS) {
+		RegSetValueEx(regKey, REG_PATH, 0, REG_SZ, reinterpret_cast<LPBYTE>(&_Settings->Path[0]), _Settings->Path.length() * sizeof(wchar_t));
 
-		DWORD dwData = IncludeSubFolders ? 1 : 0;
-		RegSetValueEx(hKey, REG_INCSF, 0, REG_DWORD, (LPBYTE)&dwData, sizeof(dwData));
+		RegSetValueEx(regKey, REG_EXTFILTER, 0, REG_SZ, reinterpret_cast<LPBYTE>(&_Settings->ExtFilter[0]), _Settings->ExtFilter.length() * sizeof(wchar_t));
 
-		dwData = EnhColor ? 1 : 0;
-		RegSetValueEx(hKey, REG_ECS, 0, REG_DWORD, (LPBYTE)&dwData, sizeof(dwData));
+		DWORD dwordData = _Settings->IncludeSubFolders ? 1 : 0;
+		RegSetValueEx(regKey, REG_INCSF, 0, REG_DWORD, reinterpret_cast<LPBYTE>(&dwordData), sizeof(dwordData));
 
-		dwData = IDE;
-		RegSetValueEx(hKey, REG_IDE, 0, REG_DWORD, (LPBYTE)&dwData, sizeof(dwData));
+		dwordData = _Settings->IDE;
+		RegSetValueEx(regKey, REG_IDE, 0, REG_DWORD, reinterpret_cast<LPBYTE>(&dwordData), sizeof(dwordData));
 
-		dwData = Speed;
-		RegSetValueEx(hKey, REG_SPEED, 0, REG_DWORD, (LPBYTE)&dwData, sizeof(dwData));
+		dwordData = _Settings->Speed;
+		RegSetValueEx(regKey, REG_SPEED, 0, REG_DWORD, reinterpret_cast<LPBYTE>(&dwordData), sizeof(dwordData));
 
-		RegCloseKey(hKey);
+		RegCloseKey(regKey);
 		return true;
 	}
 	return false;

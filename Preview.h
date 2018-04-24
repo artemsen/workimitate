@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -29,23 +29,19 @@ class CPreview
 public:
 	/**
 	 * Do preview
-	 * @param hInstance application instance for loading resources
-	 * @param hParent parent window handle
+	 * \param hinst application instance for loading resources
+	 * \param wndParent parent window handle
+	 * \return exit status
 	 */
-	static int Run(IN HINSTANCE hInstance, IN HWND hParent);
+	static int Run(const HINSTANCE hinst, const HWND wndParent);
 
 private:
 	/**
 	 * Processes messages for the window (see MSDN for more info)
-	 * @param hWnd window handle
-	 * @param message message ID
-	 * @param wParam param
-	 * @param lParam param
-	 * @return result
 	 */
-	static LRESULT CALLBACK WndProc(IN HWND hWnd, IN UINT message, IN WPARAM wParam, IN LPARAM lParam);
+	static LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
 	//Class variables
-	static CImage m_imgPreview;			///< Preview image
+	static CImage _ImgPreview;			///< Preview image
 };

@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "Common.h"
+
 
 /*!
   Configure application
@@ -27,19 +29,20 @@ class CConfigure
 public:
 	/**
 	 * Do configure
-	 * @param hInstance application instance for loading resources
-	 * @param hParent parent window handle
+	 * \param hinst application instance for loading resources
+	 * \param wndParent parent window handle
+	 * \return exit status
 	 */
-	static int Run(IN HINSTANCE hInstance, IN HWND hParent);
+	static int Run(const HINSTANCE hinst, const HWND wndParent);
 
 private:
 	/**
 	 * Processes messages for the window (see MSDN for more info)
 	 */
-	static LRESULT CALLBACK WndProc(IN HWND hWnd, IN UINT uMsg, IN WPARAM wParam, IN LPARAM lParam);
+	static LRESULT CALLBACK WndProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	/**
 	 * Callback for SHBrowseForFolder (see MSDN for more info)
 	 */
-	static int CALLBACK BFFCallBack(IN HWND hWnd, IN UINT uMsg, IN LPARAM lParam, IN LPARAM lpData);
+	static int CALLBACK BFFCallBack(HWND wnd, UINT msg, LPARAM lParam, LPARAM lpData);
 };

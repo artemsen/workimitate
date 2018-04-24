@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -16,128 +16,127 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
-/*! \file ScreenSaver.cpp
-
+/*!
     Implementation of the CScreenSaver class
 */
 
-#include "StdAfx.h"
+#include "Common.h"
 #include "ScreenSaver.h"
 #include "Resource.h"
 #include "Settings.h"
 
 
-list<wstring>	CScreenSaver::m_listFiles;
-HWND			CScreenSaver::m_hRichEdit = NULL;
-CIDEImitate*	CScreenSaver::m_pIDEImitate = NULL;
-map<CIDEImitate::ImagePlace, int> CScreenSaver::m_mapCoordinates;
+list<wstring>	CScreenSaver::_FileList;
+HWND			CScreenSaver::_RichEdit = NULL;
+CIDEImitate*	CScreenSaver::_IDEImitate = NULL;
+map<CIDEImitate::ImagePlace, int> CScreenSaver::_Coordinates;
 
 #define TIMER_ID	0x01
 
 
-int CScreenSaver::Run(IN HINSTANCE hInstance, IN HWND hParent)
+int CScreenSaver::Run(const HINSTANCE hinst, const HWND wndParent)
 {
+	Settings* settings = Settings::Get();
+
 	//Define imitated IDE
-	m_pIDEImitate = NULL;
-	CSettings objSet;
-	switch (objSet.IDE) {
-		case CSettings::enuVS9: m_pIDEImitate = new CIDEVS9();
+	_IDEImitate = NULL;
+	switch (settings->IDE) {
+		case Settings::enuVS9:		_IDEImitate = new CIDEVS9();
 			break;
-		case CSettings::enuVC6: m_pIDEImitate = new CIDEVC6();
+		case Settings::enuVC6:		_IDEImitate = new CIDEVC6();
 			break;
-		case CSettings::enuCW: m_pIDEImitate = new CIDECW();
+		case Settings::enuCW:		_IDEImitate = new CIDECW();
 			break;
-		case CSettings::enuCarbide: m_pIDEImitate = new CIDECarbide();
+		case Settings::enuCarbide:	_IDEImitate = new CIDECarbide();
 			break;
+		default:
+			assert(false && "Undefined type");
 	}
-	if (!m_pIDEImitate) {
-		MessageBox(hParent, L"Imitated IDE undefined", NULL, MB_ICONERROR | MB_OK);
+	if (!_IDEImitate) {
+		MessageBox(wndParent, L"Imitated IDE undefined", NULL, MB_ICONERROR | MB_OK);
 		return 1;
 	}
 
 	//Load images
-	if (!m_pIDEImitate->LoadImages(hInstance)) {
-		MessageBox(hParent, L"Unable to load images", NULL, MB_ICONERROR | MB_OK);
+	if (!_IDEImitate->LoadImages(hinst)) {
+		MessageBox(wndParent, L"Unable to load images", NULL, MB_ICONERROR | MB_OK);
 		return 1;
 	}
 
-
 	//Register window class and create main window
-	const wchar_t* pszWindowClassName = L"WorkImitateWndClass";
+	static const wchar_t* windowClassName = L"WorkImitateWndClass";
 	WNDCLASSEX wcex;
 	wcex.cbSize			= sizeof(WNDCLASSEX);
 	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= (WNDPROC)WndProc;
+	wcex.lpfnWndProc	= &CScreenSaver::WndProc;
 	wcex.cbClsExtra		= 0;
 	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, (LPCTSTR)m_pIDEImitate->GetIconId());
+	wcex.hInstance		= hinst;
+	wcex.hIcon			= LoadIcon(hinst, (LPCTSTR)_IDEImitate->GetIconId());
 	wcex.hCursor		= NULL;
 	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName	= NULL;
-	wcex.lpszClassName	= pszWindowClassName;
-	wcex.hIconSm		= LoadIcon(hInstance, (LPCTSTR)m_pIDEImitate->GetIconId());
+	wcex.lpszClassName	= windowClassName;
+	wcex.hIconSm		= LoadIcon(hinst, (LPCTSTR)_IDEImitate->GetIconId());
 	if (!RegisterClassEx(&wcex)) {
-		MessageBox(hParent, L"Unable to register window class", NULL, MB_ICONERROR | MB_OK);
+		MessageBox(wndParent, L"Unable to register window class", NULL, MB_ICONERROR | MB_OK);
 		return 1;
 	}
-	HWND hWnd = CreateWindow(pszWindowClassName, NULL, WS_OVERLAPPEDWINDOW, 0, 0, 800, 600, NULL, NULL, hInstance, NULL);
-	if (!hWnd) {
-		MessageBox(hParent, L"Unable to create window", NULL, MB_ICONERROR | MB_OK);
+	HWND wnd = CreateWindow(windowClassName, NULL, WS_OVERLAPPEDWINDOW, 0, 0, 800, 600, NULL, NULL, hinst, NULL);
+	if (!wnd) {
+		MessageBox(wndParent, L"Unable to create window", NULL, MB_ICONERROR | MB_OK);
 		return 1;
 	}
 
 	//Initialize richedit
-	HINSTANCE hRELib = LoadLibrary(L"riched32.dll");
-	if (!hRELib) {
-		MessageBox(hParent, L"Unable to load RichEdit library", NULL, MB_ICONERROR | MB_OK);
+	HINSTANCE richEditLib = LoadLibrary(L"riched32.dll");
+	if (!richEditLib) {
+		MessageBox(wndParent, L"Unable to load RichEdit library", NULL, MB_ICONERROR | MB_OK);
 		return 1;
 	}
 
-	m_hRichEdit = CreateWindow(RICHEDIT_CLASS, NULL, WS_CHILD | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_VISIBLE | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL, 0, 0, 0, 0, hWnd, NULL, hInstance, NULL);
+	_RichEdit = CreateWindow(RICHEDIT_CLASS, NULL, WS_CHILD | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_VISIBLE | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL, 0, 0, 0, 0, wnd, NULL, hinst, NULL);
 	CHARFORMAT chfOut;
 	ZeroMemory(&chfOut, sizeof(chfOut));
 	chfOut.cbSize = sizeof(CHARFORMAT);
 	chfOut.dwMask = CFM_BOLD | CFM_COLOR | CFM_SIZE | CFM_FACE | CFM_ITALIC | CFM_UNDERLINE | CFM_STRIKEOUT;
-	wcscpy_s(chfOut.szFaceName, /*sizeof(chfOut.szFaceName) / sizeof(TCHAR),*/ L"Courier New");
+	lstrcpy(chfOut.szFaceName, /*sizeof(chfOut.szFaceName) / sizeof(TCHAR),*/ L"Courier New");
 	chfOut.yHeight = 10 * 20;
 	chfOut.dwEffects = 0;
 	chfOut.crTextColor = RGB(0, 0, 0);
-	SendMessage(m_hRichEdit, EM_SETCHARFORMAT, 0, (LPARAM)&chfOut);
-	SendMessage(m_hRichEdit, EM_SETEVENTMASK, 0, ENM_KEYEVENTS);
-	SetFocus(m_hRichEdit);
+	SendMessage(_RichEdit, EM_SETCHARFORMAT, 0, (LPARAM)&chfOut);
+	SendMessage(_RichEdit, EM_SETEVENTMASK, 0, ENM_KEYEVENTS);
+	SetFocus(_RichEdit);
 
 	//Show main window
-	ShowWindow(hWnd, SW_SHOWMAXIMIZED);
+	ShowWindow(wnd, SW_SHOWMAXIMIZED);
 
 	//Getimages heights
-	HDC hDC = GetWindowDC(hWnd);
-	const int nTopHeight = m_pIDEImitate->GetImage(CIDEImitate::IPTop)->GetHeight(hDC);
-	const int nBottomHeight = m_pIDEImitate->GetImage(CIDEImitate::IPBottom)->GetHeight(hDC);
-	const int nLeftWidth = m_pIDEImitate->GetImage(CIDEImitate::IPLeft)->GetWidth(hDC);
-	ReleaseDC(hWnd, hDC);
+	const int topHeight = static_cast<int>(_IDEImitate->GetImage(CIDEImitate::IPTop)->GetHeight());
+	const int bottomHeight = static_cast<int>(_IDEImitate->GetImage(CIDEImitate::IPBottom)->GetHeight());
+	const int leftWidth = static_cast<int>(_IDEImitate->GetImage(CIDEImitate::IPLeft)->GetWidth());
 	
 	//Set windows position and size
 	RECT rcWnd;
-	GetClientRect(hWnd, &rcWnd);
-	m_mapCoordinates[CIDEImitate::IPTop] = 0;
-	m_mapCoordinates[CIDEImitate::IPBottom] = rcWnd.bottom - nBottomHeight;
-	m_mapCoordinates[CIDEImitate::IPLeft] = nTopHeight;
-	SetWindowPos(m_hRichEdit, NULL, nLeftWidth, nTopHeight, rcWnd.right - nLeftWidth, rcWnd.bottom - nBottomHeight - nTopHeight, SWP_SHOWWINDOW | SWP_NOZORDER);
+	GetClientRect(wnd, &rcWnd);
+	_Coordinates[CIDEImitate::IPTop] = 0;
+	_Coordinates[CIDEImitate::IPBottom] = rcWnd.bottom - bottomHeight;
+	_Coordinates[CIDEImitate::IPLeft] = topHeight;
+	SetWindowPos(_RichEdit, NULL, leftWidth, topHeight, rcWnd.right - leftWidth, rcWnd.bottom - bottomHeight - topHeight, SWP_SHOWWINDOW | SWP_NOZORDER);
 
 	//Randomize timer
 	srand(GetTickCount());
 
 	//Hide cursor and update main window
 	ShowCursor(FALSE);
-	UpdateWindow(hWnd);
+	UpdateWindow(wnd);
 
 	//Getting file list
-	if (wcslen(objSet.Path))
-		GetFileList(objSet.Path, objSet.IncludeSubFolders, objSet.Exts, m_listFiles);
+	if (!settings->Path.empty())
+		GetFileList(settings->Path.c_str(), _FileList);
 
 	//Register timer
-	SetTimer(hWnd, TIMER_ID, objSet.Speed, OnTimer);
+	SetTimer(wnd, TIMER_ID, static_cast<int>(settings->Speed), &CScreenSaver::OnTimer);
 
 	//Main message loop
 	MSG msg;
@@ -148,154 +147,177 @@ int CScreenSaver::Run(IN HINSTANCE hInstance, IN HWND hParent)
 		}
 	}
 
+	FreeLibrary(richEditLib);
+	UnregisterClass(windowClassName, hinst);
+
 	return static_cast<int>(msg.wParam);
 }
 
 
-LRESULT CALLBACK CScreenSaver::WndProc(IN HWND hWnd, IN UINT message, IN WPARAM wParam, IN LPARAM lParam)
+LRESULT CALLBACK CScreenSaver::WndProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch (message) {
+	switch (msg) {
 		case WM_NOTIFY:
-			if (LPNMHDR(lParam)->hwndFrom == m_hRichEdit && LPNMHDR(lParam)->code == EN_MSGFILTER)
+			if (LPNMHDR(lParam)->hwndFrom == _RichEdit && LPNMHDR(lParam)->code == EN_MSGFILTER)
 				PostQuitMessage(0);
 			else
-				return DefWindowProc(hWnd, message, wParam, lParam);
+				return DefWindowProc(wnd, msg, wParam, lParam);
 		case WM_PAINT:
 			{
 				PAINTSTRUCT ps;
-				HDC hDC = BeginPaint(hWnd, &ps);
-				m_pIDEImitate->GetImage(CIDEImitate::IPTop)->Draw(hDC, 0, m_mapCoordinates[CIDEImitate::IPTop]);
-				m_pIDEImitate->GetImage(CIDEImitate::IPLeft)->Draw(hDC, 0, m_mapCoordinates[CIDEImitate::IPLeft]);
-				m_pIDEImitate->GetImage(CIDEImitate::IPBottom)->Draw(hDC, 0, m_mapCoordinates[CIDEImitate::IPBottom]);
-				EndPaint(hWnd, &ps);
+				HDC dc = BeginPaint(wnd, &ps);
+				_IDEImitate->GetImage(CIDEImitate::IPTop)->Draw(dc, 0, _Coordinates[CIDEImitate::IPTop]);
+				_IDEImitate->GetImage(CIDEImitate::IPLeft)->Draw(dc, 0, _Coordinates[CIDEImitate::IPLeft]);
+				_IDEImitate->GetImage(CIDEImitate::IPBottom)->Draw(dc, 0, _Coordinates[CIDEImitate::IPBottom]);
+				EndPaint(wnd, &ps);
 			}
 			break;
 		case WM_DESTROY:
+#ifndef _DEBUG
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN:
+#endif	//_DEBUG
 			PostQuitMessage(0);
 			break;
 #ifndef _DEBUG
 		case WM_SETCURSOR:
 			{
-			static int nGiveMeChance = 20;
-			if (!nGiveMeChance--)
-				PostQuitMessage(0);
+				static int giveMeChance = 20;
+				if (!--giveMeChance)
+					PostQuitMessage(0);
 			}
 			break;
-#endif
+#endif	//_DEBUG
 		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
+			return DefWindowProc(wnd, msg, wParam, lParam);
    }
    return 0;
 }
 
 
-UINT CScreenSaver::GetFileList(IN LPCWSTR lpszPath, IN bool fIncludeSubdir, IN const set<wstring>& setFileExt, OUT list<wstring>& listFiles)
+size_t CScreenSaver::GetFileList(const wchar_t* path, list<wstring>& fileList)
 {
-	wchar_t szFindMask[MAX_PATH];
-	wcscpy_s(szFindMask, lpszPath);
-	if (szFindMask[wcslen(szFindMask) - 1] != '\\')
-		wcscat_s(szFindMask, L"\\");
-	wcscat_s(szFindMask, L"*");
-
-	WIN32_FIND_DATA FindFileData;
-	HANDLE hFindFile = FindFirstFile(szFindMask, &FindFileData);
-	if (hFindFile == INVALID_HANDLE_VALUE)
+	if (lstrlen(path) == 0)
 		return 0;
 
-	while (hFindFile != INVALID_HANDLE_VALUE) {
-		wstring strFullPath = lpszPath;
-		strFullPath += L"\\";
-		strFullPath += FindFileData.cFileName;
+	//Convert extensions filter string to set
+	static set<wstring> fileExt;
+	if (fileExt.empty()) {
+		wstring extString(Settings::Get()->ExtFilter);
+		size_t posStart = 0;
+		size_t posEnd = 0;
+		static const wchar_t* delims = L" ;,";
+		while (posEnd < extString.length()) {
+			posStart = extString.find_first_not_of(delims, posEnd);
+			if (posStart == wstring::npos)
+				break;
+			posEnd = extString.find_first_of(delims, posStart);
+			fileExt.insert(extString.substr(posStart, posEnd - posStart));
+		}
+	}
 
-		if (wcscmp(FindFileData.cFileName, L".") && wcscmp(FindFileData.cFileName, L"..")) {
-			if (fIncludeSubdir && PathIsDirectory(strFullPath.c_str()))
-				GetFileList(strFullPath.c_str(), fIncludeSubdir, setFileExt, listFiles);
-			else {
-				//Check for file size
-				if (FindFileData.nFileSizeLow && !FindFileData.nFileSizeHigh) {	//Ignore too big or zero-sized files
-					//Check file extenstion mask
-					size_t nExtIndex = strFullPath.find_last_of('.');
-					if (nExtIndex != string::npos) {
-						if (setFileExt.find(strFullPath.substr(nExtIndex + 1)) != setFileExt.end())
-							listFiles.push_back(strFullPath);
-					}
+	static const bool includeSubdir = Settings::Get()->IncludeSubFolders;
+
+	wstring findPath = path;
+	findPath += L"\\*";
+
+	WIN32_FIND_DATA findFileData;
+	HANDLE findHandle = FindFirstFile(findPath.c_str(), &findFileData);
+	if (findHandle == INVALID_HANDLE_VALUE)
+		return 0;
+
+	do {
+		wstring fullPath = path;
+		fullPath += L'\\';
+		fullPath += findFileData.cFileName;
+
+		if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+			if (includeSubdir && lstrcmp(findFileData.cFileName, L".") != 0 && lstrcmp(findFileData.cFileName, L"..") != 0)
+				GetFileList(fullPath.c_str(), fileList);
+		}
+		else {
+			//Check for file size
+			if (findFileData.nFileSizeLow && !findFileData.nFileSizeHigh) {	//Ignore too big or zero-sized files
+				//Check file extenstion mask
+				const size_t extPos = fullPath.rfind('.');
+				if (extPos != string::npos) {
+					wstring ext = fullPath.substr(extPos + 1);
+					transform(ext.begin(), ext.end(), ext.begin(), tolower);
+					if (fileExt.find(ext) != fileExt.end())
+						fileList.push_back(fullPath);
 				}
 			}
 		}
-
-		if (!FindNextFile(hFindFile, &FindFileData))
-			break;
 	}
+	while (FindNextFile(findHandle, &findFileData));
 
-	FindClose(hFindFile);
+	FindClose(findHandle);
 
-	return static_cast<UINT>(listFiles.size());
+	return fileList.size();
 }
 
 
-void CALLBACK CScreenSaver::OnTimer(IN HWND hWnd, IN UINT /*uMsg*/, IN UINT /*idEvent*/, IN DWORD /*dwTime*/)
+void CALLBACK CScreenSaver::OnTimer(HWND wnd, UINT /*msg*/, UINT_PTR /*idEvent*/, DWORD /*dwTime*/)
 {
 	char szText[] = {0, 0};
-	CParser::BlockType enuType = m_pIDEImitate->GetNextSymbol(&szText[0]);
+	CParser::BlockType enuType = _IDEImitate->GetNextSymbol(&szText[0]);
 
 	if (enuType == CParser::BTEOF) {
-		if (m_listFiles.empty()) {
+		if (_FileList.empty()) {
 			//Set default content
-			HRSRC hRsrc = FindResource(NULL, MAKEINTRESOURCE(IDR_SAMPLECODE), L"Images");
+			HRSRC hRsrc = FindResource(NULL, MAKEINTRESOURCE(IDR_SAMPLECODE), L"BINDATA");
 			if (hRsrc) {
 				const char* lpRsrc = static_cast<const char*>(LoadResource(NULL, hRsrc));
 				if (lpRsrc)
-					m_pIDEImitate->SetContent(lpRsrc);
+					_IDEImitate->SetContent(lpRsrc);
 				FreeResource(hRsrc);
 			}
 			//Set window title
 			wchar_t pszWndTitle[1024];
-			swprintf_s(pszWndTitle, m_pIDEImitate->GetWndTitle(), L"[File not found]");
-			SetWindowText(hWnd, pszWndTitle);
+			swprintf(pszWndTitle, _IDEImitate->GetWndTitle(), L"[File not found]");
+			SetWindowText(wnd, pszWndTitle);
 		}
 		else {
-			int nIndex = int(m_listFiles.size() * rand() / (RAND_MAX + 1.0));
-			list<wstring>::const_iterator it = m_listFiles.begin();
-			advance(it, nIndex);
+			const size_t index = rand() % _FileList.size();
+			list<wstring>::const_iterator it = _FileList.begin();
+			advance(it, index);
 			wstring strFileName = *it;
-			m_pIDEImitate->LoadContent(strFileName.c_str());
+			_IDEImitate->LoadContent(strFileName.c_str());
 
 			//Set window title
 			wchar_t pszWndTitle[1024];
-			swprintf_s(pszWndTitle, m_pIDEImitate->GetWndTitle(), strFileName.substr(strFileName.find_last_of('\\') + 1).c_str());
-			SetWindowText(hWnd, pszWndTitle);
+			swprintf(pszWndTitle, _IDEImitate->GetWndTitle(), strFileName.substr(strFileName.find_last_of('\\') + 1).c_str());
+			SetWindowText(wnd, pszWndTitle);
 		}
-		SetWindowText(m_hRichEdit, L"");	//Clear window
+		SetWindowText(_RichEdit, L"");	//Clear window
 	}
 	else {
 		GETTEXTLENGTHEX gtl;
 		ZeroMemory(&gtl, sizeof(gtl));
 		gtl.codepage = CP_ACP;
 		gtl.flags = GTL_NUMCHARS;
-		LONG dwCharCount = static_cast<LONG>(SendMessage(m_hRichEdit, EM_GETTEXTLENGTHEX, (WPARAM)&gtl, 0));
+		LONG dwCharCount = static_cast<LONG>(SendMessage(_RichEdit, EM_GETTEXTLENGTHEX, (WPARAM)&gtl, 0));
 
 		CHARRANGE cr;
 		cr.cpMin = cr.cpMax = dwCharCount;
-		SendMessage(m_hRichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
+		SendMessage(_RichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
 
-		SendMessageA(m_hRichEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)szText);
+		SendMessageA(_RichEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)szText);
 
-		if (szText[0] != '\n' && szText[0] != '\t' && szText[0] != ' ') {
+		if (szText[0] != '\r' && szText[0] != '\n' && szText[0] != '\t' && szText[0] != ' ') {
 			cr.cpMin = dwCharCount;
 			cr.cpMax = -1;
-			SendMessage(m_hRichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
+			SendMessage(_RichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
 
 			CHARFORMAT chfOut;
 			ZeroMemory(&chfOut, sizeof(chfOut));
 			chfOut.cbSize = sizeof(CHARFORMAT);
 			chfOut.dwMask = CFM_COLOR;
-			chfOut.crTextColor = m_pIDEImitate->GetColorByBlockType(enuType);
-			SendMessage(m_hRichEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&chfOut);
+			chfOut.crTextColor = _IDEImitate->GetColorByBlockType(enuType);
+			SendMessage(_RichEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&chfOut);
 
 			cr.cpMin = cr.cpMax = -1;
-			SendMessage(m_hRichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
+			SendMessage(_RichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
 		}
 	}	
 }

@@ -1,6 +1,6 @@
 /**************************************************************************
  *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
- *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *  Copyright (C) 2007-2010 by Artem A. Senichev <artemsen@gmail.com>     *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *
@@ -16,102 +16,115 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
-#include "StdAfx.h"
 #include "Image.h"
 
-#ifndef HIMETRIC_INCH
-#define HIMETRIC_INCH	2540    //HIMETRIC units per inch
-#endif
+#pragma pack (push, 1)
+//! Targa header
+struct IMAGE_TGA_HEADER {
+	unsigned char	Length;
+	unsigned char	ColormapType;
+	unsigned char	ImageType;
+	unsigned short	ColormapIndex;
+	unsigned short	ColormapLength;
+	unsigned char	ColormapEntrySize;
+	unsigned short	OriginX;
+	unsigned short	OriginY;
+	unsigned short	Width;
+	unsigned short	Height;
+	unsigned char	PixelSize;
+	unsigned char	ImageDesc;
+};
+#define IMAGE_TGA_RLE		0x0A	//RLE compressed TGA
+#pragma pack (pop)
 
 
 CImage::CImage()
-: m_pPicture(NULL)
+:	_ImgWidth(0), _ImgHeight(0)
 {
-
 }
 
 
 CImage::~CImage()
 {
-
+	DeleteObject(_Bitmap);
 }
 
 
-bool CImage::Load(IN HINSTANCE hInstance, IN UINT_PTR nIDRes)
+bool CImage::Load(const HINSTANCE hinst, const UINT_PTR resId)
 {
 	//Find resource in resource file
-	HRSRC hRsrc = FindResource(hInstance, MAKEINTRESOURCE(nIDRes), L"Images");
-	if (!hRsrc)
+	HRSRC res = FindResource(hinst, MAKEINTRESOURCE(resId), L"IMAGE");
+	if (!res)
 		return false;
 
 	//Load resource into memory
-	DWORD dwLen = SizeofResource(hInstance, hRsrc);
-	BYTE* lpRsrc = (BYTE*)LoadResource(hInstance, hRsrc);
-	if (!lpRsrc)
+	const BYTE* resData = reinterpret_cast<const BYTE*>(LoadResource(hinst, res));
+	if (!resData)
 		return false;
 
-	HGLOBAL hGlobal = NULL;
-	hGlobal = GlobalAlloc(GMEM_MOVEABLE, dwLen);
-	PVOID pvData = GlobalLock(hGlobal);
-	ATLASSERT(pvData != NULL);
-	memcpy(pvData, lpRsrc, dwLen);
-	GlobalUnlock(hGlobal);
+	const IMAGE_TGA_HEADER* header = reinterpret_cast<const IMAGE_TGA_HEADER*>(resData);
+	resData += sizeof(IMAGE_TGA_HEADER);
 
-	CComPtr<IStream> pStream;
-	
-	HRESULT hr = CreateStreamOnHGlobal(hGlobal, TRUE, &pStream);
-	if (SUCCEEDED(hr))
-		hr = OleLoadPicture(pStream, 0, true, IID_IPicture, (void**)&m_pPicture);
+	assert(header->ColormapType == 0);	//Colormap not supported
+	assert(header->ImageType == IMAGE_TGA_RLE);
 
-	FreeResource(hRsrc);
-	return SUCCEEDED(hr);
+	//Read the width and height
+	_ImgWidth  = header->Width;
+	_ImgHeight = header->Height;
+	assert(_ImgWidth != 0 && _ImgHeight != 0 && _ImgWidth < 4096 && _ImgHeight < 4096);	//Undefined image size
+
+	//Calculate the number of bytes per pixel
+	const size_t bpp = header->PixelSize / 8;
+	assert(bpp == 4);
+
+	//Calculate the size
+	const size_t sizeInBytes = _ImgWidth * _ImgHeight * bpp;
+
+	//Read the data
+	vector<unsigned char> imgData;
+	imgData.resize(sizeInBytes);
+	size_t bufPos = 0;
+	while (bufPos < _ImgWidth * _ImgHeight * bpp) {
+		unsigned char packetHeader = *resData;			
+		resData += sizeof(unsigned char);
+		const unsigned char packetLength = (packetHeader & 0x7F) + 1;
+		if ((packetHeader & 0x80) != 0) {	// Run-length encoding packet (RLE)
+			const unsigned char* packet = reinterpret_cast<const unsigned char*>(resData);
+			resData += bpp;
+			for (unsigned int j = 0; j < packetLength * bpp; ++j) {
+				assert(bufPos <= sizeInBytes);	//Incorrect format
+				imgData[bufPos++] = packet[j % bpp];
+			}
+		}
+		else {									//Raw packet
+			for (size_t j = 0; j < packetLength * bpp; ++j) {
+				assert(bufPos <= sizeInBytes);	//Incorrect format
+				imgData[bufPos++] = *resData;
+				resData += sizeof(unsigned char);
+			}
+		}
+	}
+
+	_Bitmap = CreateBitmap(static_cast<int>(_ImgWidth), static_cast<int>(_ImgHeight), 1, 32, &imgData[0]);
+
+	FreeResource(res);
+	return true;
 }
 
 
-void CImage::Draw(IN HDC hDC, IN LONG nX, IN LONG nY, IN LONG nWidth /*= 0*/, IN LONG nHeight /*= 0*/)
+void CImage::Draw(const HDC dc, const int x, const int y, const int width /*= 0*/, const int height /*= 0*/)
 {
-	if (!m_pPicture)
-		return;
+	HDC dcMem = CreateCompatibleDC(dc);
+	HBITMAP hbmOld = static_cast<HBITMAP>(SelectObject(dcMem, _Bitmap));
 
-	//Get the width and the height of the picture
-	long hmWidth = 0, hmHeight = 0;
-	m_pPicture->get_Width(&hmWidth);
-	m_pPicture->get_Height(&hmHeight);
+	BITMAP bm;
+	GetObject(_Bitmap, sizeof(bm), &bm);
 
-	//Convert himetric to pixels
-	if (!nWidth)
-		nWidth  = MulDiv(hmWidth, GetDeviceCaps(hDC, LOGPIXELSX), HIMETRIC_INCH);
-	if (!nHeight)
-		nHeight = MulDiv(hmHeight, GetDeviceCaps(hDC, LOGPIXELSY), HIMETRIC_INCH);
+	if (width == 0 || height == 0)
+		BitBlt(dc, x, y, bm.bmWidth, bm.bmHeight, dcMem, 0, 0, SRCCOPY);
+	else
+		StretchBlt(dc, 0, 0, width, height, dcMem, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
 
-	//Display the picture using IPicture::Render
-	m_pPicture->Render(hDC, nX, nY, nWidth, nHeight, 0, hmHeight, hmWidth, -hmHeight, NULL);
-}
-
-
-LONG CImage::GetHeight(IN HDC hDC) const
-{
-	if (!m_pPicture)
-		return 0;
-	
-	//Get the height of the picture
-	LONG hmHeight = 0;
-	m_pPicture->get_Height(&hmHeight);
-	
-	//Convert himetric to pixels
-	return MulDiv(hmHeight, GetDeviceCaps(hDC, LOGPIXELSY), HIMETRIC_INCH);
-}
-
-
-LONG CImage::GetWidth(IN HDC hDC) const
-{
-	if (!m_pPicture)
-		return 0;
-
-	//Get the width of the picture
-	LONG hmWidth = 0;
-	m_pPicture->get_Width(&hmWidth);
-	
-	//Convert himetric to pixels
-	return MulDiv(hmWidth, GetDeviceCaps(hDC, LOGPIXELSX), HIMETRIC_INCH);
+	SelectObject(dcMem, hbmOld);
+	DeleteDC(dcMem);
 }
