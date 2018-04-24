@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4DFDF2C5-2ED7-49F6-9BEB-99C2D8112572}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>WorkImitate</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>gdiplus.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>gdiplus.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="first_launch.h" />
+    <ClInclude Include="ide_imitate.h" />
+    <ClInclude Include="image.h" />
+    <ClInclude Include="parser.h" />
+    <ClInclude Include="preview.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="screen_saver.h" />
+    <ClInclude Include="settings.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WorkImitate.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ide_cw\icon.ico" />
+    <None Include="ide_cw\img_bm.png" />
+    <None Include="ide_cw\img_br.png" />
+    <None Include="ide_cw\img_lb.png" />
+    <None Include="ide_cw\img_lm.png" />
+    <None Include="ide_cw\img_lt.png" />
+    <None Include="ide_cw\img_rm.png" />
+    <None Include="ide_cw\img_tl.png" />
+    <None Include="ide_cw\img_tm.png" />
+    <None Include="ide_cw\imr_bl.png" />
+    <None Include="ide_eclipse\icon.ico" />
+    <None Include="ide_eclipse\img_bl.png" />
+    <None Include="ide_eclipse\img_bm.png" />
+    <None Include="ide_eclipse\img_br.png" />
+    <None Include="ide_eclipse\img_lm.png" />
+    <None Include="ide_eclipse\img_lt.png" />
+    <None Include="ide_eclipse\img_rm.png" />
+    <None Include="ide_eclipse\img_tl.png" />
+    <None Include="ide_eclipse\img_tm.png" />
+    <None Include="ide_eclipse\img_tr.png" />
+    <None Include="ide_idea\icon.ico" />
+    <None Include="ide_idea\imb_br.png" />
+    <None Include="ide_idea\img_bl.png" />
+    <None Include="ide_idea\img_bm.png" />
+    <None Include="ide_idea\img_lm.png" />
+    <None Include="ide_idea\img_lt.png" />
+    <None Include="ide_idea\img_rm.png" />
+    <None Include="ide_idea\img_tl.png" />
+    <None Include="ide_idea\img_tm.png" />
+    <None Include="ide_idea\img_tr.png" />
+    <None Include="ide_vc6\icon.ico" />
+    <None Include="ide_vc6\imb_br.png" />
+    <None Include="ide_vc6\img_bl.png" />
+    <None Include="ide_vc6\img_bm.png" />
+    <None Include="ide_vc6\img_lb.png" />
+    <None Include="ide_vc6\img_lm.png" />
+    <None Include="ide_vc6\img_lt.png" />
+    <None Include="ide_vc6\img_rm.png" />
+    <None Include="ide_vc6\img_tl.png" />
+    <None Include="ide_vc6\img_tm.png" />
+    <None Include="ide_vc6\img_tr.png" />
+    <None Include="ide_vs11\img_bl.png" />
+    <None Include="ide_vs11\img_bm.png" />
+    <None Include="ide_vs11\img_br.png" />
+    <None Include="ide_vs11\icon.ico" />
+    <None Include="ide_vs11\img_lb.png" />
+    <None Include="ide_vs11\img_lm.png" />
+    <None Include="ide_vs11\img_lt.png" />
+    <None Include="ide_vs11\img_rm.png" />
+    <None Include="ide_vs11\img_tl.png" />
+    <None Include="ide_vs11\img_tm.png" />
+    <None Include="ide_vs11\img_tr.png" />
+    <None Include="ide_vs9\icon.ico" />
+    <None Include="ide_vs9\img_bl.png" />
+    <None Include="ide_vs9\img_bm.png" />
+    <None Include="ide_vs9\img_br.png" />
+    <None Include="ide_vs9\img_lm.png" />
+    <None Include="ide_vs9\img_lt.png" />
+    <None Include="ide_vs9\img_rm.png" />
+    <None Include="ide_vs9\img_tl.png" />
+    <None Include="ide_vs9\img_tm.png" />
+    <None Include="ide_vs9\img_tr.png" />
+    <None Include="preview.bmp" />
+    <None Include="sample_code.code" />
+    <None Include="WorkImitate.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="first_launch.cpp" />
+    <ClCompile Include="image.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="parser.cpp" />
+    <ClCompile Include="preview.cpp" />
+    <ClCompile Include="screen_saver.cpp" />
+    <ClCompile Include="settings.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="resources">
+      <UniqueIdentifier>{b8dd92ec-24f3-428c-95ba-8b8d510c7797}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\vs11">
+      <UniqueIdentifier>{8c6adfdd-6a09-46d1-a60c-46b2a3d3fea4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\vs9">
+      <UniqueIdentifier>{478077b8-7080-4d9c-ade8-e5c47155fd00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\idea">
+      <UniqueIdentifier>{dd6d720b-1f39-42c2-a1e2-33bf9ad76af1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\codewarrior">
+      <UniqueIdentifier>{7d69cf59-6986-42af-845c-799294bb757e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\eclipse">
+      <UniqueIdentifier>{2c1c150b-d253-4dc8-b157-cb4228b4cdc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\vc6">
+      <UniqueIdentifier>{3b344cbf-5849-4f2e-83be-7de5a3e8bbe4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="screen_saver.h" />
+    <ClInclude Include="settings.h" />
+    <ClInclude Include="ide_imitate.h" />
+    <ClInclude Include="image.h" />
+    <ClInclude Include="resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="parser.h" />
+    <ClInclude Include="preview.h" />
+    <ClInclude Include="first_launch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ide_vs11\icon.ico">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="ide_vs11\img_bl.png">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="ide_vs11\img_bm.png">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="ide_vs11\img_br.png">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="ide_vs11\img_lm.png">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="ide_vs11\img_lt.png">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="ide_vs11\img_rm.png">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="ide_vs11\img_tl.png">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="ide_vs11\img_tm.png">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="ide_vs11\img_tr.png">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="ide_vs11\img_lb.png">
+      <Filter>resources\vs11</Filter>
+    </None>
+    <None Include="sample_code.code">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="WorkImitate.ico">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="ide_vs9\img_bl.png">
+      <Filter>resources\vs9</Filter>
+    </None>
+    <None Include="ide_vs9\img_tr.png">
+      <Filter>resources\vs9</Filter>
+    </None>
+    <None Include="ide_vs9\img_bm.png">
+      <Filter>resources\vs9</Filter>
+    </None>
+    <None Include="ide_vs9\img_br.png">
+      <Filter>resources\vs9</Filter>
+    </None>
+    <None Include="ide_vs9\img_lm.png">
+      <Filter>resources\vs9</Filter>
+    </None>
+    <None Include="ide_vs9\img_lt.png">
+      <Filter>resources\vs9</Filter>
+    </None>
+    <None Include="ide_vs9\img_rm.png">
+      <Filter>resources\vs9</Filter>
+    </None>
+    <None Include="ide_vs9\img_tl.png">
+      <Filter>resources\vs9</Filter>
+    </None>
+    <None Include="ide_vs9\img_tm.png">
+      <Filter>resources\vs9</Filter>
+    </None>
+    <None Include="ide_vs9\icon.ico">
+      <Filter>resources\vs9</Filter>
+    </None>
+    <None Include="ide_cw\imr_bl.png">
+      <Filter>resources\codewarrior</Filter>
+    </None>
+    <None Include="ide_cw\img_bm.png">
+      <Filter>resources\codewarrior</Filter>
+    </None>
+    <None Include="ide_cw\img_br.png">
+      <Filter>resources\codewarrior</Filter>
+    </None>
+    <None Include="ide_cw\img_lm.png">
+      <Filter>resources\codewarrior</Filter>
+    </None>
+    <None Include="ide_cw\img_lt.png">
+      <Filter>resources\codewarrior</Filter>
+    </None>
+    <None Include="ide_cw\img_tl.png">
+      <Filter>resources\codewarrior</Filter>
+    </None>
+    <None Include="ide_cw\img_tm.png">
+      <Filter>resources\codewarrior</Filter>
+    </None>
+    <None Include="ide_cw\icon.ico">
+      <Filter>resources\codewarrior</Filter>
+    </None>
+    <None Include="ide_cw\img_lb.png">
+      <Filter>resources\codewarrior</Filter>
+    </None>
+    <None Include="ide_cw\img_rm.png">
+      <Filter>resources\codewarrior</Filter>
+    </None>
+    <None Include="ide_eclipse\img_bl.png">
+      <Filter>resources\eclipse</Filter>
+    </None>
+    <None Include="ide_eclipse\img_tr.png">
+      <Filter>resources\eclipse</Filter>
+    </None>
+    <None Include="ide_eclipse\img_bm.png">
+      <Filter>resources\eclipse</Filter>
+    </None>
+    <None Include="ide_eclipse\img_br.png">
+      <Filter>resources\eclipse</Filter>
+    </None>
+    <None Include="ide_eclipse\img_lm.png">
+      <Filter>resources\eclipse</Filter>
+    </None>
+    <None Include="ide_eclipse\img_lt.png">
+      <Filter>resources\eclipse</Filter>
+    </None>
+    <None Include="ide_eclipse\img_rm.png">
+      <Filter>resources\eclipse</Filter>
+    </None>
+    <None Include="ide_eclipse\img_tl.png">
+      <Filter>resources\eclipse</Filter>
+    </None>
+    <None Include="ide_eclipse\img_tm.png">
+      <Filter>resources\eclipse</Filter>
+    </None>
+    <None Include="ide_eclipse\icon.ico">
+      <Filter>resources\eclipse</Filter>
+    </None>
+    <None Include="ide_idea\imb_br.png">
+      <Filter>resources\idea</Filter>
+    </None>
+    <None Include="ide_idea\img_tr.png">
+      <Filter>resources\idea</Filter>
+    </None>
+    <None Include="ide_idea\img_bl.png">
+      <Filter>resources\idea</Filter>
+    </None>
+    <None Include="ide_idea\img_bm.png">
+      <Filter>resources\idea</Filter>
+    </None>
+    <None Include="ide_idea\img_lm.png">
+      <Filter>resources\idea</Filter>
+    </None>
+    <None Include="ide_idea\img_lt.png">
+      <Filter>resources\idea</Filter>
+    </None>
+    <None Include="ide_idea\img_rm.png">
+      <Filter>resources\idea</Filter>
+    </None>
+    <None Include="ide_idea\img_tl.png">
+      <Filter>resources\idea</Filter>
+    </None>
+    <None Include="ide_idea\img_tm.png">
+      <Filter>resources\idea</Filter>
+    </None>
+    <None Include="ide_idea\icon.ico">
+      <Filter>resources\idea</Filter>
+    </None>
+    <None Include="ide_vc6\img_tr.png">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="ide_vc6\imb_br.png">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="ide_vc6\img_bl.png">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="ide_vc6\img_bm.png">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="ide_vc6\img_lb.png">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="ide_vc6\img_lm.png">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="ide_vc6\img_lt.png">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="ide_vc6\img_rm.png">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="ide_vc6\img_tl.png">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="ide_vc6\img_tm.png">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="ide_vc6\icon.ico">
+      <Filter>resources\vc6</Filter>
+    </None>
+    <None Include="preview.bmp">
+      <Filter>resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="screen_saver.cpp" />
+    <ClCompile Include="settings.cpp" />
+    <ClCompile Include="image.cpp" />
+    <ClCompile Include="parser.cpp" />
+    <ClCompile Include="preview.cpp" />
+    <ClCompile Include="first_launch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WorkImitate.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
