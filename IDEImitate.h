@@ -1,24 +1,20 @@
-/***************************************************************************
- *   Copyright (C) 2007-2008 by Artem A. Senichev                          *
- *   artemsen@gmail.com                                                    *
- *                                                                         *
- *   This file is part of the WorkImitate screen saver                     *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/**************************************************************************
+ *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
+ *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *                                                                        *
+ *  This program is free software: you can redistribute it and/or modify  *
+ *  it under the terms of the GNU General Public License as published by  *
+ *  the Free Software Foundation, either version 3 of the License, or     *
+ *  (at your option) any later version.                                   *
+ *                                                                        *
+ *  This program is distributed in the hope that it will be useful,       *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *  GNU General Public License for more details.                          *
+ *                                                                        *
+ *  You should have received a copy of the GNU General Public License     *
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ **************************************************************************/
 
 #pragma once
 
@@ -47,19 +43,19 @@ public:
 	 * @param enuType image place identifier
 	 * @return image ID
 	 */
-	virtual UINT GetImageId(IN ImagePlace enuType) const	{ return 0; }
+	virtual UINT_PTR GetImageId(IN ImagePlace /*enuType*/) const	{ return 0; }
 
 	/**
 	 * Get IDE icon ID
 	 * @return icon ID
 	 */
-	virtual unsigned int GetIconId(void) const = 0;
+	virtual UINT_PTR GetIconId(void) const = 0;
 
 	/**
 	 * Get IDE window title template
 	 * @return window title template
 	 */
-	virtual const char* GetWndTitle(void) const = 0;
+	virtual LPCWSTR GetWndTitle(void) const = 0;
 
 public:
 
@@ -83,7 +79,6 @@ private:
 	CImage	m_imgBottom;	///< Bottom image
 	CImage	m_imgLeft;		///< Left image
 	//CImage	m_imgRight;		//Not implemented
-
 };
 
 
@@ -103,9 +98,9 @@ public:
 class CIDEVC6 : public CIDEMS
 {
 public:
-	UINT GetImageId(IN ImagePlace enuType) const;
-	unsigned int GetIconId(void) const	{ return IDI_VC6; }
-	const char* GetWndTitle(void) const	{ return "WorkImitate - Microsoft Visual C++ - [%s]"; }
+	UINT_PTR GetImageId(IN ImagePlace enuType) const;
+	UINT_PTR GetIconId(void) const	{ return IDI_VC6; }
+	LPCWSTR GetWndTitle(void) const	{ return L"WorkImitate - Microsoft Visual C++ - [%s]"; }
 };
 
 
@@ -115,9 +110,9 @@ public:
 class CIDEVS9 : public CIDEMS
 {
 public:
-	UINT GetImageId(IN ImagePlace enuType) const;
-	unsigned int GetIconId(void) const			{ return IDI_VS9; }
-	const char* GetWndTitle(void) const			{ return "WorkImitate - Microsoft Visual Studio [%s]"; }
+	UINT_PTR GetImageId(IN ImagePlace enuType) const;
+	UINT_PTR GetIconId(void) const			{ return IDI_VS9; }
+	LPCWSTR GetWndTitle(void) const			{ return L"WorkImitate - Microsoft Visual Studio [%s]"; }
 	BlockType GetBlockType(IN const char* pszWord);
 };
 
@@ -128,9 +123,21 @@ public:
 class CIDECW : public CIDEImitate
 {
 public:
-	UINT GetImageId(IN ImagePlace enuType) const;
-	unsigned int GetIconId(void) const			{ return IDI_CW; }
-	const char* GetWndTitle(void) const			{ return "Metrowerks CodeWarrior - [%s]"; }
+	UINT_PTR GetImageId(IN ImagePlace enuType) const;
+	UINT_PTR GetIconId(void) const			{ return IDI_CW; }
+	LPCWSTR GetWndTitle(void) const			{ return L"Metrowerks CodeWarrior - [%s]"; }
 	COLORREF GetColorByBlockType(IN BlockType enuType) const;
 	BlockType GetBlockType(IN const char* pszWord);
+};
+
+
+/*!
+  Implementation of imitated Nokia Carbide.c++
+*/
+class CIDECarbide : public CIDEImitate
+{
+public:
+	UINT_PTR GetImageId(IN ImagePlace enuType) const;
+	UINT_PTR GetIconId(void) const			{ return IDI_CARBIDE; }
+	LPCWSTR GetWndTitle(void) const			{ return L"Carbide C/C++ - %s - Carbide.c++"; }
 };

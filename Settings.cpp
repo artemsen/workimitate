@@ -1,24 +1,20 @@
-/***************************************************************************
- *   Copyright (C) 2007-2008 by Artem A. Senichev                          *
- *   artemsen@gmail.com                                                    *
- *                                                                         *
- *   This file is part of the WorkImitate screen saver                     *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/**************************************************************************
+ *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
+ *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *                                                                        *
+ *  This program is free software: you can redistribute it and/or modify  *
+ *  it under the terms of the GNU General Public License as published by  *
+ *  the Free Software Foundation, either version 3 of the License, or     *
+ *  (at your option) any later version.                                   *
+ *                                                                        *
+ *  This program is distributed in the hope that it will be useful,       *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *  GNU General Public License for more details.                          *
+ *                                                                        *
+ *  You should have received a copy of the GNU General Public License     *
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ **************************************************************************/
 
 
 /*! \file Settings.cpp
@@ -30,12 +26,12 @@
 #include "Settings.h"
 
 //! Path to registry to save/load settings
-#define REG_SETTINGS	_T("SOFTWARE\\WorkImitate")
-#define REG_PATH		_T("Path")
-#define REG_INCSF		_T("InclSubFolders")
-#define REG_ECS			_T("EnhColorSyntax")
-#define REG_IDE			_T("IDE")
-#define REG_SPEED		_T("Speed")
+#define REG_SETTINGS	L"SOFTWARE\\WorkImitate"
+#define REG_PATH		L"Path"
+#define REG_INCSF		L"InclSubFolders"
+#define REG_ECS			L"EnhColorSyntax"
+#define REG_IDE			L"IDE"
+#define REG_SPEED		L"Speed"
 
 
 CSettings::CSettings(IN bool fLoadSettings /*= true*/)
@@ -52,6 +48,20 @@ CSettings::~CSettings(void)
 
 bool CSettings::Load(void)
 {
+	//Set default values
+	wcscpy_s(Path, sizeof(Path) / sizeof(wchar_t), L"");
+	IncludeSubFolders = true;
+	EnhColor = true;
+	IDE = enuVS9;
+	Speed = 50;
+
+	/* Not implemented - always constant set */
+	Exts.insert(L"h");
+	Exts.insert(L"hpp");
+	Exts.insert(L"hrh");
+	Exts.insert(L"c");
+	Exts.insert(L"cpp");
+
 	HKEY hKey;
 	DWORD dwResult = RegOpenKeyEx(HKEY_CURRENT_USER, REG_SETTINGS, 0, KEY_READ, &hKey);
 	if (dwResult == ERROR_SUCCESS) {
@@ -81,22 +91,6 @@ bool CSettings::Load(void)
 
 		RegCloseKey(hKey);
 	}
-	else {
-		//Set default values
-		strcpy(Path, "");
-		IncludeSubFolders = true;
-		EnhColor = true;
-		IDE = enuVS9;
-		Speed = 50;
-		//Not implemented: Val.Exts
-	}
-
-	/* Not implemented - always constant set */
-	Exts.insert("h");
-	Exts.insert("hpp");
-	Exts.insert("hrh");
-	Exts.insert("c");
-	Exts.insert("cpp");
 
 	return true;	//If error - use default settings
 }

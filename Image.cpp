@@ -1,24 +1,20 @@
-/***************************************************************************
- *   Copyright (C) 2007-2008 by Artem A. Senichev                          *
- *   artemsen@gmail.com                                                    *
- *                                                                         *
- *   This file is part of the WorkImitate screen saver                     *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/**************************************************************************
+ *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
+ *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *                                                                        *
+ *  This program is free software: you can redistribute it and/or modify  *
+ *  it under the terms of the GNU General Public License as published by  *
+ *  the Free Software Foundation, either version 3 of the License, or     *
+ *  (at your option) any later version.                                   *
+ *                                                                        *
+ *  This program is distributed in the hope that it will be useful,       *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *  GNU General Public License for more details.                          *
+ *                                                                        *
+ *  You should have received a copy of the GNU General Public License     *
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ **************************************************************************/
 
 #include "StdAfx.h"
 #include "Image.h"
@@ -41,10 +37,10 @@ CImage::~CImage()
 }
 
 
-bool CImage::Load(IN HINSTANCE hInstance, IN UINT nIDRes)
+bool CImage::Load(IN HINSTANCE hInstance, IN UINT_PTR nIDRes)
 {
 	//Find resource in resource file
-	HRSRC hRsrc = FindResource(hInstance, MAKEINTRESOURCE(nIDRes), "Images");
+	HRSRC hRsrc = FindResource(hInstance, MAKEINTRESOURCE(nIDRes), L"Images");
 	if (!hRsrc)
 		return false;
 
@@ -72,7 +68,7 @@ bool CImage::Load(IN HINSTANCE hInstance, IN UINT nIDRes)
 }
 
 
-void CImage::Draw(IN HDC hDC, IN int nX, IN int nY, IN int nWidth /*= 0*/, IN int nHeight /*= 0*/)
+void CImage::Draw(IN HDC hDC, IN LONG nX, IN LONG nY, IN LONG nWidth /*= 0*/, IN LONG nHeight /*= 0*/)
 {
 	if (!m_pPicture)
 		return;
@@ -93,25 +89,29 @@ void CImage::Draw(IN HDC hDC, IN int nX, IN int nY, IN int nWidth /*= 0*/, IN in
 }
 
 
-int CImage::GetHeight(IN HDC hDC) const
+LONG CImage::GetHeight(IN HDC hDC) const
 {
 	if (!m_pPicture)
 		return 0;
+	
 	//Get the height of the picture
-	long hmHeight = 0;
+	LONG hmHeight = 0;
 	m_pPicture->get_Height(&hmHeight);
+	
 	//Convert himetric to pixels
 	return MulDiv(hmHeight, GetDeviceCaps(hDC, LOGPIXELSY), HIMETRIC_INCH);
 }
 
 
-int CImage::GetWidth(IN HDC hDC) const
+LONG CImage::GetWidth(IN HDC hDC) const
 {
 	if (!m_pPicture)
 		return 0;
+
 	//Get the width of the picture
-	long hmWidth = 0;
+	LONG hmWidth = 0;
 	m_pPicture->get_Width(&hmWidth);
+	
 	//Convert himetric to pixels
 	return MulDiv(hmWidth, GetDeviceCaps(hDC, LOGPIXELSX), HIMETRIC_INCH);
 }

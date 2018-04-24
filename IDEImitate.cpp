@@ -1,24 +1,20 @@
-/***************************************************************************
- *   Copyright (C) 2007-2008 by Artem A. Senichev                          *
- *   artemsen@gmail.com                                                    *
- *                                                                         *
- *   This file is part of the WorkImitate screen saver                     *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/**************************************************************************
+ *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
+ *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *                                                                        *
+ *  This program is free software: you can redistribute it and/or modify  *
+ *  it under the terms of the GNU General Public License as published by  *
+ *  the Free Software Foundation, either version 3 of the License, or     *
+ *  (at your option) any later version.                                   *
+ *                                                                        *
+ *  This program is distributed in the hope that it will be useful,       *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *  GNU General Public License for more details.                          *
+ *                                                                        *
+ *  You should have received a copy of the GNU General Public License     *
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ **************************************************************************/
 
 /*! \file IDEImitate.cpp
 
@@ -32,9 +28,9 @@
 
 bool CIDEImitate::LoadImages(IN HINSTANCE hInstance)
 {
-	UINT nTopID = GetImageId(IPTop);
-	UINT nBottomID = GetImageId(IPBottom);
-	UINT nLeftID = GetImageId(IPLeft);
+	UINT_PTR nTopID = GetImageId(IPTop);
+	UINT_PTR nBottomID = GetImageId(IPBottom);
+	UINT_PTR nLeftID = GetImageId(IPLeft);
 
 	return (
 		(nTopID ? m_imgTop.Load(hInstance, nTopID) : true) &&
@@ -55,7 +51,7 @@ CImage*	CIDEImitate::GetImage(IN ImagePlace enuType)
 }
 
 
-UINT CIDEVC6::GetImageId(IN ImagePlace enuType) const
+UINT_PTR CIDEVC6::GetImageId(IN ImagePlace enuType) const
 {
 	switch (enuType) {
 		case IPTop:		return IDB_VC6TOP;
@@ -83,7 +79,7 @@ COLORREF CIDEMS::GetColorByBlockType(IN BlockType enuType) const
 }
 
 
-UINT CIDEVS9::GetImageId(IN ImagePlace enuType) const
+UINT_PTR CIDEVS9::GetImageId(IN ImagePlace enuType) const
 {
 	switch (enuType) {
 		case IPTop:		return IDB_VS9TOP;
@@ -121,11 +117,8 @@ CParser::BlockType CIDEVS9::GetBlockType(IN const char* pszWord)
 	}
 
 
-	//MS CPP directives
+	//MS CPP directives and macros
 	static const char* aMSVCDirectives[] = {
-		"__FILE__",
-		"__FUNCTION__",
-		"__LINE__",
 		"_DEBUG",
 		"COLORREF",
 		"BOOL",
@@ -147,7 +140,7 @@ CParser::BlockType CIDEVS9::GetBlockType(IN const char* pszWord)
 
 
 
-UINT CIDECW::GetImageId(IN ImagePlace enuType) const
+UINT_PTR CIDECW::GetImageId(IN ImagePlace enuType) const
 {
 	switch (enuType) {
 		case IPTop:		return IDB_CWTOP;
@@ -187,4 +180,15 @@ CParser::BlockType CIDECW::GetBlockType(IN const char* pszWord)
 		return BTMacros;
 
 	return CParser::GetBlockType(pszWord);
+}
+
+
+UINT_PTR CIDECarbide::GetImageId(IN ImagePlace enuType) const
+{
+	switch (enuType) {
+		case IPTop:		return IDB_CCTOP;
+		case IPBottom:	return IDB_CCBOTTOM;
+		case IPLeft:	return IDB_CCLEFT;
+	}
+	return 0;
 }

@@ -1,211 +1,76 @@
-// Microsoft Visual C++ generated resource script.
-//
+#define APSTUDIO_READONLY_SYMBOLS 0
+#define APSTUDIO_HIDDEN_SYMBOLS 0
+
 #include "resource.h"
-
-#define APSTUDIO_READONLY_SYMBOLS
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 2 resource.
-//
-#ifndef APSTUDIO_INVOKED
-#include "targetver.h"
-#endif
-#define APSTUDIO_HIDDEN_SYMBOLS
 #include "windows.h"
-#undef APSTUDIO_HIDDEN_SYMBOLS
 
-/////////////////////////////////////////////////////////////////////////////
-#undef APSTUDIO_READONLY_SYMBOLS
+LANGUAGE 0,0
 
-/////////////////////////////////////////////////////////////////////////////
-// Neutral resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
-#ifdef _WIN32
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-#pragma code_page(1251)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDI_WORKIMITATE         ICON                    "Resources\\WorkImitate.ico"
-IDI_CW                  ICON                    "Resources\\CWIcon.ico"
-IDI_VC6                 ICON                    "Resources\\VC6Icon.ico"
-IDI_VS9                 ICON                    "Resources\\VS9Icon.ico"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Version
-//
+IDI_WORKIMITATE ICON "Resources/WorkImitate.ico"
+IDI_CW ICON "Resources/CWIcon.ico"
+IDI_VC6 ICON "Resources/VC6Icon.ico"
+IDI_VS9 ICON "Resources/VS9Icon.ico"
+IDB_CWBOTTOM IMAGES "Resources/CWBottom.gif"
+IDB_CWLEFT IMAGES "Resources/CWLeft.gif"
+IDB_CWTOP IMAGES "Resources/CWTop.gif"
+IDB_PREVIEW IMAGES "Resources/Preview.gif"
+IDB_VC6BOTTOM IMAGES "Resources/VC6Bottom.gif"
+IDB_VC6LEFT IMAGES "Resources/VC6Left.gif"
+IDB_VC6TOP IMAGES "Resources/VC6Top.gif"
+IDB_VS9BOTTOM IMAGES "Resources/VS9Bottom.gif"
+IDB_VS9LEFT IMAGES "Resources/VS9Left.gif"
+IDB_VS9TOP IMAGES "Resources/VS9Top.gif"
+IDI_CARBIDE ICON "Resources/CCIcon.ico"
+IDB_CCTOP IMAGES "Resources/CCTop.gif"
+IDB_CCBOTTOM IMAGES "Resources/CCBottom.gif"
+IDB_CCLEFT IMAGES "Resources/CCLeft.gif"
+IDR_SAMPLECODE IMAGES "Resources/Sample.code"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
- FILEFLAGSMASK 0x17L
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
- FILEFLAGS 0x0L
-#endif
- FILEOS 0x4L
- FILETYPE 0x0L
- FILESUBTYPE 0x0L
+FILEVERSION 1,0,0,2
+PRODUCTVERSION 1,0,0,2
+FILEOS 0x00000004
+FILETYPE 0x00000001
 BEGIN
-    BLOCK "StringFileInfo"
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
     BEGIN
-        BLOCK "040904b0"
-        BEGIN
-            VALUE "Comments", "Work Imitate screen saver"
-            VALUE "FileDescription", "Work Imitate screen saver"
-            VALUE "FileVersion", "1, 0, 0, 1"
-            VALUE "InternalName", "WorkImitate"
-            VALUE "LegalCopyright", "Copyright (C) 2008 Artem A. Senichev"
-            VALUE "OriginalFilename", "WorkImitate.exe"
-            VALUE "ProductName", "Work Imitate screen saver"
-            VALUE "ProductVersion", "1, 0, 0, 1"
-        END
+      VALUE "Comments", "Work Imitate screen saver\0"
+      VALUE "FileDescription", "Work Imitate screen saver\0"
+      VALUE "FileVersion", "1, 0, 0, 2\0"
+      VALUE "InternalName", "WorkImitate\0"
+      VALUE "LegalCopyright", "Copyright (C) 2008 Artem A. Senichev\0"
+      VALUE "OriginalFilename", "WorkImitate.exe\0"
+      VALUE "ProductName", "Work Imitate screen saver\0"
+      VALUE "ProductVersion", "1, 0, 0, 2\0"
     END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x409, 1200
-    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 0x04B0
+  END
 END
 
-#endif    // Neutral resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Russian resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-#ifdef _WIN32
-LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
-#pragma code_page(1251)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// IMAGES
-//
-
-IDB_CWBOTTOM            IMAGES                  "Resources\\CWBottom.gif"
-IDB_CWLEFT              IMAGES                  "Resources\\CWLeft.gif"
-IDB_CWTOP               IMAGES                  "Resources\\CWTop.gif"
-IDB_PREVIEW             IMAGES                  "Resources\\Preview.gif"
-IDB_VC6BOTTOM           IMAGES                  "Resources\\VC6Bottom.gif"
-IDB_VC6LEFT             IMAGES                  "Resources\\VC6Left.gif"
-IDB_VC6TOP              IMAGES                  "Resources\\VC6Top.gif"
-IDB_VS9BOTTOM           IMAGES                  "Resources\\VS9Bottom.gif"
-IDB_VS9LEFT             IMAGES                  "Resources\\VS9Left.gif"
-IDB_VS9TOP              IMAGES                  "Resources\\VS9Top.gif"
-#endif    // Russian resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
-#endif //_WIN32
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE 
+IDD_CONFIGURE DIALOGEX 0,0,222,195
+CAPTION "WorkImitate v.1.1 Configure"
+FONT 8,"MS Shell Dlg",400,0,0
+STYLE WS_POPUP|WS_VISIBLE|WS_CAPTION|DS_SHELLFONT
 BEGIN
-    "resource.h\0"
+  CONTROL "Path to source files:",IDC_STATIC,"Static",WS_CHILD|WS_VISIBLE|WS_GROUP,6,5,210,9
+  CONTROL "",IDC_EDIT1,"Edit",WS_CHILD|WS_VISIBLE|WS_TABSTOP|ES_AUTOHSCROLL,6,15,189,12,WS_EX_CLIENTEDGE
+  CONTROL "...",IDC_BUTTON1,"Button",WS_CHILD|WS_VISIBLE|WS_TABSTOP,198,15,19,13
+  CONTROL "Include subfolders",IDC_CHECK1,"Button",WS_VISIBLE|WS_TABSTOP|BS_AUTOCHECKBOX,6,29,210,11
+  CONTROL "Imitated IDE:",IDC_STATIC,"Static",WS_CHILD|WS_VISIBLE|WS_GROUP,6,48,210,9
+  CONTROL "",IDC_COMBO1,"ComboBox",WS_CHILD|WS_VISIBLE|WS_VSCROLL|WS_TABSTOP|CBS_DROPDOWNLIST,6,58,210,84
+  CONTROL "Enhanced color syntax",IDC_CHECK2,"Button",WS_VISIBLE|WS_TABSTOP|BS_AUTOCHECKBOX,6,73,210,11
+  CONTROL "Typing speed",IDC_STATIC,"Button",WS_CHILD|WS_VISIBLE|BS_GROUPBOX,6,88,210,48
+  CONTROL "",IDC_SLIDER1,"msctls_trackbar32",WS_VISIBLE|WS_TABSTOP|TBS_AUTOTICKS,54,100,156,24
+  CONTROL "0",IDC_TYPINGSPEED,"Static",WS_CHILD|WS_VISIBLE|WS_GROUP|SS_CENTER,18,106,30,8
+  CONTROL "10 msec",IDC_STATIC,"Static",WS_CHILD|WS_VISIBLE|WS_GROUP,48,124,27,8
+  CONTROL "1 sec",IDC_STATIC,"Static",WS_CHILD|WS_VISIBLE|WS_GROUP,192,124,18,8
+  CONTROL "OK",IDOK,"Button",WS_CHILD|WS_VISIBLE|WS_TABSTOP|BS_DEFPUSHBUTTON,112,173,50,15
+  CONTROL "Cancel",IDCANCEL,"Button",WS_CHILD|WS_VISIBLE|WS_TABSTOP,166,173,50,15
+  CONTROL "http://workimitate.sourceforge.net",IDC_STATIC,"Static",WS_CHILD|WS_VISIBLE|SS_CENTERIMAGE|SS_CENTER,6,142,208,9
+  CONTROL "Artem A. Senichev 2007-2008",IDC_STATIC,"Static",WS_CHILD|WS_VISIBLE|SS_CENTERIMAGE|SS_CENTER,6,155,208,9
 END
-
-2 TEXTINCLUDE 
-BEGIN
-    "#ifndef APSTUDIO_INVOKED\r\n"
-    "#include ""targetver.h""\r\n"
-    "#endif\r\n"
-    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
-    "#include ""windows.h""\r\n"
-    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_CONFIGURE DIALOGEX 0, 0, 223, 164
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
-CAPTION "Work Imitate Configure"
-FONT 8, "MS Shell Dlg", 400, 0, 0x0
-BEGIN
-    LTEXT           "Path:",IDC_STATIC,6,6,18,8
-    EDITTEXT        IDC_EDIT1,6,15,189,12,ES_AUTOHSCROLL
-    PUSHBUTTON      "...",IDC_BUTTON1,198,15,19,13
-    CONTROL         "Include subfolders",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,30,75,10
-    LTEXT           "Imitated IDE:",IDC_STATIC,6,48,44,8
-    COMBOBOX        IDC_COMBO1,6,58,210,84,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Enhanced color syntax (Visual Assist imitate)",IDC_CHECK2,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,73,158,10
-    GROUPBOX        "Typing speed",IDC_STATIC,6,88,210,48
-    CONTROL         "",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,54,100,156,24
-    CTEXT           "0",IDC_TYPINGSPEED,18,106,30,8
-    LTEXT           "10 msec",IDC_STATIC,48,124,27,8
-    LTEXT           "1 sec",IDC_STATIC,192,124,18,8
-    DEFPUSHBUTTON   "OK",IDOK,114,144,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,168,144,50,14
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
-BEGIN
-    IDD_CONFIGURE, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 216
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 157
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // English (U.S.) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-
-#ifndef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 3 resource.
-//
-
-
-/////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED
-

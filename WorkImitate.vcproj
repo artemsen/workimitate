@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="8.00"
 	Name="WorkImitate"
-	ProjectGUID="{F0BDDF23-645A-44EA-BD84-B70B4DF02472}"
+	ProjectGUID="{44F051BD-D3C5-4E09-9652-9CD25C6D5F7B}"
 	RootNamespace="WorkImitate"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -21,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -41,12 +40,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				WarningLevel="3"
+				WarningLevel="4"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -60,6 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="kernel32.lib $(NoInherit)"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -84,6 +85,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -92,8 +96,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="2"
-			ManagedExtensions="0"
+			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -113,14 +116,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				RuntimeLibrary="0"
-				EnableFunctionLevelLinking="true"
+				Optimization="3"
+				PreprocessorDefinitions="WIN32;NDEBUG"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
-				WarningLevel="3"
-				DebugInformationFormat="3"
+				WarningLevel="4"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -133,6 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="kernel32.lib $(NoInherit)"
 				OutputFile="$(OutDir)\$(ProjectName).scr"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -160,6 +163,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -168,122 +174,26 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
-			>
-			<File
-				RelativePath=".\Configure.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\IDEImitate.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Image.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Parser.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Preview.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ScreenSaver.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Settings.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\stdafx.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\WorkImitate.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath=".\Configure.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IDEImitate.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Image.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Parser.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Preview.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ReservedWords.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Resource.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ScreenSaver.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Settings.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath=".\targetver.h"
-				>
-			</File>
-			<File
-				RelativePath=".\WorkImitate.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\Resources\CCBottom.gif"
+				>
+			</File>
+			<File
+				RelativePath=".\Resources\CCIcon.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\Resources\CCLeft.gif"
+				>
+			</File>
+			<File
+				RelativePath=".\Resources\CCTop.gif"
+				>
+			</File>
 			<File
 				RelativePath=".\Resources\CWBottom.gif"
 				>
@@ -302,6 +212,10 @@
 			</File>
 			<File
 				RelativePath=".\Resources\Preview.gif"
+				>
+			</File>
+			<File
+				RelativePath=".\Resources\Sample.code"
 				>
 			</File>
 			<File
@@ -345,6 +259,98 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\Configure.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Configure.h"
+			>
+		</File>
+		<File
+			RelativePath=".\IDEImitate.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\IDEImitate.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Image.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Image.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Parser.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Parser.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Preview.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Preview.h"
+			>
+		</File>
+		<File
+			RelativePath=".\ReservedWords.h"
+			>
+		</File>
+		<File
+			RelativePath=".\resource.h"
+			>
+		</File>
+		<File
+			RelativePath=".\ScreenSaver.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ScreenSaver.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Settings.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Settings.h"
+			>
+		</File>
+		<File
+			RelativePath=".\stdafx.cpp"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\stdafx.h"
+			>
+		</File>
+		<File
+			RelativePath=".\WorkImitate.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

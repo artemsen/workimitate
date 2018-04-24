@@ -1,24 +1,20 @@
-/***************************************************************************
- *   Copyright (C) 2007-2008 by Artem A. Senichev                          *
- *   artemsen@gmail.com                                                    *
- *                                                                         *
- *   This file is part of the WorkImitate screen saver                     *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/**************************************************************************
+ *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
+ *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *                                                                        *
+ *  This program is free software: you can redistribute it and/or modify  *
+ *  it under the terms of the GNU General Public License as published by  *
+ *  the Free Software Foundation, either version 3 of the License, or     *
+ *  (at your option) any later version.                                   *
+ *                                                                        *
+ *  This program is distributed in the hope that it will be useful,       *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *  GNU General Public License for more details.                          *
+ *                                                                        *
+ *  You should have received a copy of the GNU General Public License     *
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ **************************************************************************/
 
 #pragma once
 
@@ -40,7 +36,7 @@ public:
 	 * @param nIDRes ID image in resources
 	 * @return boolean result (true if image loaded)
 	 */
-	bool Load(IN HINSTANCE hInstance, IN UINT nIDRes);
+	bool Load(IN HINSTANCE hInstance, IN UINT_PTR nIDRes);
 
 	/**
 	 * Draw image
@@ -50,21 +46,21 @@ public:
 	 * @param nWidth width of image
 	 * @param nHeight height of image
 	 */
-	void Draw(IN HDC hDC, IN int nX, IN int nY, IN int nWidth = 0, IN int nHeight = 0);
+	void Draw(IN HDC hDC, IN LONG nX, IN LONG nY, IN LONG nWidth = 0, IN LONG nHeight = 0);
 
 	/**
 	 * Get width of image in pixels for specified DC
 	 * @param hDC output device context handle
 	 * @return images width
 	 */
-	int GetWidth(IN HDC hDC) const;
+	LONG GetWidth(IN HDC hDC) const;
 
 	/**
 	 * Get height of image in pixels for specified DC
 	 * @param hDC output device context handle
 	 * @return images height
 	 */
-	int GetHeight(IN HDC hDC) const;
+	LONG GetHeight(IN HDC hDC) const;
 
 	/**
 	 * Check for correct loaded image

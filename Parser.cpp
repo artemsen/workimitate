@@ -1,24 +1,20 @@
-/***************************************************************************
- *   Copyright (C) 2007-2008 by Artem A. Senichev                          *
- *   artemsen@gmail.com                                                    *
- *                                                                         *
- *   This file is part of the WorkImitate screen saver                     *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/**************************************************************************
+ *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
+ *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *                                                                        *
+ *  This program is free software: you can redistribute it and/or modify  *
+ *  it under the terms of the GNU General Public License as published by  *
+ *  the Free Software Foundation, either version 3 of the License, or     *
+ *  (at your option) any later version.                                   *
+ *                                                                        *
+ *  This program is distributed in the hope that it will be useful,       *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *  GNU General Public License for more details.                          *
+ *                                                                        *
+ *  You should have received a copy of the GNU General Public License     *
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ **************************************************************************/
 
 /*! \file Parser.cpp
 
@@ -27,6 +23,7 @@
 
 #include "StdAfx.h"
 #include "Parser.h"
+#include "Settings.h"
 #include "ReservedWords.h"
 
 
@@ -50,17 +47,17 @@ void CParser::Reset(void)
 }
 
 
-bool CParser::LoadContent(IN const char* pszFileName)
+bool CParser::LoadContent(IN LPCWSTR lpszFileName)
 {
 	Reset();
 
-	HANDLE hFile = CreateFile(pszFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE hFile = CreateFile(lpszFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return false;
 
 	BY_HANDLE_FILE_INFORMATION fi;
 	GetFileInformationByHandle(hFile, &fi);
-	BYTE* pData = new BYTE[fi.nFileSizeLow + 1];
+	char* pData = new char[fi.nFileSizeLow + 1];
 
 	DWORD dwNumberOfBytesRead;
 	ReadFile(hFile, pData, fi.nFileSizeLow, &dwNumberOfBytesRead, NULL);
@@ -72,7 +69,7 @@ bool CParser::LoadContent(IN const char* pszFileName)
 	while ((pRPos = (char*)strchr((const char*)pData, '\r')) != NULL)
 		*pRPos = ' ';
 
-	m_strFileContent = (const char*)pData;
+	m_strFileContent = pData;
 	delete[] pData;
 	return true;
 }
@@ -85,8 +82,19 @@ void CParser::SetContent(IN const char* pszContent)
 }
 
 
-COLORREF CParser::GetColorByBlockType(IN BlockType /*enuType*/) const
+COLORREF CParser::GetColorByBlockType(IN BlockType enuType) const
 {
+	static bool fUseEnhColor = CSettings().EnhColor;
+	switch (enuType) {
+		case BTNormal:		return RGB(0, 0, 0);
+		case BTQuotedStr:	return fUseEnhColor ? RGB(120, 120, 120) : RGB(128, 0, 0);
+		case BTMacros:		return fUseEnhColor ? RGB(128, 0, 128) : RGB(0, 0, 0);
+		case BTComment:		return RGB(0, 128, 0);
+		case BTCPPReserved:
+		case BTDirective:	return RGB(0, 0, 255);
+		case BTClassName:	return fUseEnhColor ? RGB(0, 0, 255) : RGB(0, 0, 0);
+		case BTFuncName:	return fUseEnhColor ? RGB(163, 21, 21) : RGB(0, 0, 0);
+	}
 	return RGB(0, 0, 0);
 }
 
@@ -101,8 +109,8 @@ CParser::BlockType CParser::GetBlockType(IN const char* pszWord)
 	}
 
 	//CPP directives
-	for (i = 0; i < (sizeof(g_CPPDirictives) / sizeof(g_CPPDirictives[0])); i++) {
-		if (strcmp(pszWord, g_CPPDirictives[i]) == 0)
+	for (i = 0; i < (sizeof(g_CPPPreprocessor) / sizeof(g_CPPPreprocessor[0])); i++) {
+		if (strcmp(pszWord, g_CPPPreprocessor[i]) == 0)
 			return BTDirective;
 	}
 
@@ -121,15 +129,15 @@ void CParser::DefineNextBlock(void)
 	}
 
 	//Comments
-	if (m_strFileContent[m_nEndBlockPos] == '/') {
-		if (m_strFileContent[m_nEndBlockPos + 1] == '*') {
-			m_enuBlockType = BTComment;
-			m_nEndBlockPos = m_strFileContent.find(_T("*/"), m_nEndBlockPos + 2) + 2;
-		}
-		else if (m_strFileContent[m_nEndBlockPos + 1] == '/') {
-			m_enuBlockType = BTComment;
-			m_nEndBlockPos = m_strFileContent.find('\n', m_nEndBlockPos + 2) + 1;
-		}
+	if (m_strFileContent[m_nEndBlockPos] == '/' && m_nEndBlockPos + 1 < m_strFileContent.size() && m_strFileContent[m_nEndBlockPos + 1] == '*') {
+		m_enuBlockType = BTComment;
+		size_t nPos = m_strFileContent.find("*/", m_nEndBlockPos + 2);
+		m_nEndBlockPos = (nPos == string::npos ? m_strFileContent.size() : nPos + 2);
+	}
+	else if (m_strFileContent[m_nEndBlockPos + 1] == '/' && m_nEndBlockPos + 1 < m_strFileContent.size() && m_strFileContent[m_nEndBlockPos + 1] == '/') {
+		m_enuBlockType = BTComment;
+		size_t nPos = m_strFileContent.find('\n', m_nEndBlockPos + 2);
+		m_nEndBlockPos = (nPos == string::npos ? m_strFileContent.size() : nPos + 1);
 	}
 	//Quoted string
 	else if (m_strFileContent[m_nEndBlockPos] == '"') {
@@ -142,22 +150,26 @@ void CParser::DefineNextBlock(void)
 	}
 	//All another
 	else {
-		const char* ss = m_strFileContent.c_str() + m_nEndBlockPos;
-		int nEndWordPos = strcspn(m_strFileContent.c_str() + m_nEndBlockPos, _T(" ();:.,<>\"'=/+-*[]~!%^&|\n\t"));
-		if (nEndWordPos >= 0) {
+		size_t nEndWordPos = strcspn(m_strFileContent.c_str() + m_nEndBlockPos, " ();:.,<>\"'=/+-*[]~!%^&|\n\t");
+		if (nEndWordPos != string::npos) {
 			string strCurrentWord = m_strFileContent.substr(m_nEndBlockPos, nEndWordPos ? nEndWordPos : 1);
-			//Check if it is function name (call)
-			int nFxNameCheck = m_nEndBlockPos + nEndWordPos;
-			while (m_strFileContent[nFxNameCheck] == ' ')	//Skip spaces
-				nFxNameCheck++;
-			if (m_strFileContent[nFxNameCheck] == '(' && (_istalpha(m_strFileContent[m_nEndBlockPos]) || m_strFileContent[m_nEndBlockPos] == '_')) {
-				m_enuBlockType = BTFuncName;
-				m_nEndBlockPos += strCurrentWord.length();
+			//Check for reserved words
+			m_enuBlockType = GetBlockType(strCurrentWord.c_str());
+			if (m_enuBlockType == BTNormal) {	//Not defined
+				//Check if it is function name (call)
+				size_t nFxNameCheck = m_nEndBlockPos + nEndWordPos;
+				while (m_strFileContent[nFxNameCheck] == ' ' || m_strFileContent[nFxNameCheck] == '\t')	//Skip spaces
+					nFxNameCheck++;
+
+				if (m_strFileContent[nFxNameCheck] == '(' && (_istalpha(m_strFileContent[m_nEndBlockPos]) || m_strFileContent[m_nEndBlockPos] == '_')) {
+					m_enuBlockType = BTFuncName;
+					m_nEndBlockPos += strCurrentWord.length();
+				}
+				else
+					m_nEndBlockPos += (nEndWordPos ? nEndWordPos : 1);
 			}
-			else {
-				m_enuBlockType = GetBlockType(strCurrentWord.c_str());
+			else
 				m_nEndBlockPos += (nEndWordPos ? nEndWordPos : 1);
-			}
 		}
 	}
 }
@@ -169,7 +181,9 @@ CParser::BlockType CParser::GetNextSymbol(OUT char* pSymbol)
 		return BTEOF;
 
 	if (m_nCurrentPos == m_nEndBlockPos)
-			DefineNextBlock();
+		DefineNextBlock();
+
+	assert(m_nCurrentPos < m_nEndBlockPos);
 
 	*pSymbol = m_strFileContent[m_nCurrentPos++];
 	return m_enuBlockType;

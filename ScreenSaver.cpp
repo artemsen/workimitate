@@ -1,24 +1,20 @@
-/***************************************************************************
- *   Copyright (C) 2007-2008 by Artem A. Senichev                          *
- *   artemsen@gmail.com                                                    *
- *                                                                         *
- *   This file is part of the WorkImitate screen saver                     *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/**************************************************************************
+ *  WorkImitate screensaver (http://workimitate.sourceforge.net)          *
+ *  Copyright (C) 2007-2008 by Artem A. Senichev <artemsen@gmail.com>     *
+ *                                                                        *
+ *  This program is free software: you can redistribute it and/or modify  *
+ *  it under the terms of the GNU General Public License as published by  *
+ *  the Free Software Foundation, either version 3 of the License, or     *
+ *  (at your option) any later version.                                   *
+ *                                                                        *
+ *  This program is distributed in the hope that it will be useful,       *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *  GNU General Public License for more details.                          *
+ *                                                                        *
+ *  You should have received a copy of the GNU General Public License     *
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ **************************************************************************/
 
 /*! \file ScreenSaver.cpp
 
@@ -31,7 +27,7 @@
 #include "Settings.h"
 
 
-list<string>	CScreenSaver::m_listFiles;
+list<wstring>	CScreenSaver::m_listFiles;
 HWND			CScreenSaver::m_hRichEdit = NULL;
 CIDEImitate*	CScreenSaver::m_pIDEImitate = NULL;
 map<CIDEImitate::ImagePlace, int> CScreenSaver::m_mapCoordinates;
@@ -51,21 +47,23 @@ int CScreenSaver::Run(IN HINSTANCE hInstance, IN HWND hParent)
 			break;
 		case CSettings::enuCW: m_pIDEImitate = new CIDECW();
 			break;
+		case CSettings::enuCarbide: m_pIDEImitate = new CIDECarbide();
+			break;
 	}
 	if (!m_pIDEImitate) {
-		MessageBox(NULL, _T("Imitated IDE undefined"), NULL, MB_ICONERROR | MB_OK);
+		MessageBox(hParent, L"Imitated IDE undefined", NULL, MB_ICONERROR | MB_OK);
 		return 1;
 	}
 
 	//Load images
 	if (!m_pIDEImitate->LoadImages(hInstance)) {
-		MessageBox(NULL, _T("Unable to load images"), NULL, MB_ICONERROR | MB_OK);
+		MessageBox(hParent, L"Unable to load images", NULL, MB_ICONERROR | MB_OK);
 		return 1;
 	}
 
 
 	//Register window class and create main window
-	const char* pszWindowClassName = "WorkImitateWndClass";
+	const wchar_t* pszWindowClassName = L"WorkImitateWndClass";
 	WNDCLASSEX wcex;
 	wcex.cbSize			= sizeof(WNDCLASSEX);
 	wcex.style			= CS_HREDRAW | CS_VREDRAW;
@@ -80,19 +78,19 @@ int CScreenSaver::Run(IN HINSTANCE hInstance, IN HWND hParent)
 	wcex.lpszClassName	= pszWindowClassName;
 	wcex.hIconSm		= LoadIcon(hInstance, (LPCTSTR)m_pIDEImitate->GetIconId());
 	if (!RegisterClassEx(&wcex)) {
-		MessageBox(NULL, _T("Unable to register window class"), NULL, MB_ICONERROR | MB_OK);
+		MessageBox(hParent, L"Unable to register window class", NULL, MB_ICONERROR | MB_OK);
 		return 1;
 	}
 	HWND hWnd = CreateWindow(pszWindowClassName, NULL, WS_OVERLAPPEDWINDOW, 0, 0, 800, 600, NULL, NULL, hInstance, NULL);
 	if (!hWnd) {
-		MessageBox(NULL, _T("Unable to create window"), NULL, MB_ICONERROR | MB_OK);
+		MessageBox(hParent, L"Unable to create window", NULL, MB_ICONERROR | MB_OK);
 		return 1;
 	}
 
 	//Initialize richedit
-	HINSTANCE hRELib = LoadLibrary("riched32.dll");
+	HINSTANCE hRELib = LoadLibrary(L"riched32.dll");
 	if (!hRELib) {
-		MessageBox(NULL, _T("Unable to load RichEdit library"), NULL, MB_ICONERROR | MB_OK);
+		MessageBox(hParent, L"Unable to load RichEdit library", NULL, MB_ICONERROR | MB_OK);
 		return 1;
 	}
 
@@ -101,7 +99,7 @@ int CScreenSaver::Run(IN HINSTANCE hInstance, IN HWND hParent)
 	ZeroMemory(&chfOut, sizeof(chfOut));
 	chfOut.cbSize = sizeof(CHARFORMAT);
 	chfOut.dwMask = CFM_BOLD | CFM_COLOR | CFM_SIZE | CFM_FACE | CFM_ITALIC | CFM_UNDERLINE | CFM_STRIKEOUT;
-	strcpy(chfOut.szFaceName, /*sizeof(chfOut.szFaceName) / sizeof(TCHAR),*/ _T("Courier New"));
+	wcscpy_s(chfOut.szFaceName, /*sizeof(chfOut.szFaceName) / sizeof(TCHAR),*/ L"Courier New");
 	chfOut.yHeight = 10 * 20;
 	chfOut.dwEffects = 0;
 	chfOut.crTextColor = RGB(0, 0, 0);
@@ -114,9 +112,9 @@ int CScreenSaver::Run(IN HINSTANCE hInstance, IN HWND hParent)
 
 	//Getimages heights
 	HDC hDC = GetWindowDC(hWnd);
-	int nTopHeight = m_pIDEImitate->GetImage(CIDEImitate::IPTop)->GetHeight(hDC);
-	int nBottomHeight = m_pIDEImitate->GetImage(CIDEImitate::IPBottom)->GetHeight(hDC);
-	int nLeftWidth = m_pIDEImitate->GetImage(CIDEImitate::IPLeft)->GetWidth(hDC);
+	const int nTopHeight = m_pIDEImitate->GetImage(CIDEImitate::IPTop)->GetHeight(hDC);
+	const int nBottomHeight = m_pIDEImitate->GetImage(CIDEImitate::IPBottom)->GetHeight(hDC);
+	const int nLeftWidth = m_pIDEImitate->GetImage(CIDEImitate::IPLeft)->GetWidth(hDC);
 	ReleaseDC(hWnd, hDC);
 	
 	//Set windows position and size
@@ -135,7 +133,7 @@ int CScreenSaver::Run(IN HINSTANCE hInstance, IN HWND hParent)
 	UpdateWindow(hWnd);
 
 	//Getting file list
-	if (strlen(objSet.Path))
+	if (wcslen(objSet.Path))
 		GetFileList(objSet.Path, objSet.IncludeSubFolders, objSet.Exts, m_listFiles);
 
 	//Register timer
@@ -150,7 +148,7 @@ int CScreenSaver::Run(IN HINSTANCE hInstance, IN HWND hParent)
 		}
 	}
 
-	return msg.wParam;
+	return static_cast<int>(msg.wParam);
 }
 
 
@@ -193,13 +191,13 @@ LRESULT CALLBACK CScreenSaver::WndProc(IN HWND hWnd, IN UINT message, IN WPARAM 
 }
 
 
-int CScreenSaver::GetFileList(IN const char* pszPath, IN bool fIncludeSubdir, IN const set<string>& setFileExt, OUT list<string>& listFiles)
+UINT CScreenSaver::GetFileList(IN LPCWSTR lpszPath, IN bool fIncludeSubdir, IN const set<wstring>& setFileExt, OUT list<wstring>& listFiles)
 {
-	char szFindMask[MAX_PATH];
-	strcpy(szFindMask, pszPath);
-	if (szFindMask[strlen(szFindMask) - 1] != '\\')
-		strcat(szFindMask, "\\");
-	strcat(szFindMask, "*");
+	wchar_t szFindMask[MAX_PATH];
+	wcscpy_s(szFindMask, lpszPath);
+	if (szFindMask[wcslen(szFindMask) - 1] != '\\')
+		wcscat_s(szFindMask, L"\\");
+	wcscat_s(szFindMask, L"*");
 
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFindFile = FindFirstFile(szFindMask, &FindFileData);
@@ -207,11 +205,11 @@ int CScreenSaver::GetFileList(IN const char* pszPath, IN bool fIncludeSubdir, IN
 		return 0;
 
 	while (hFindFile != INVALID_HANDLE_VALUE) {
-		string strFullPath = pszPath;
-		strFullPath += "\\";
+		wstring strFullPath = lpszPath;
+		strFullPath += L"\\";
 		strFullPath += FindFileData.cFileName;
 
-		if (strcmp(FindFileData.cFileName, ".") && strcmp(FindFileData.cFileName, "..")) {
+		if (wcscmp(FindFileData.cFileName, L".") && wcscmp(FindFileData.cFileName, L"..")) {
 			if (fIncludeSubdir && PathIsDirectory(strFullPath.c_str()))
 				GetFileList(strFullPath.c_str(), fIncludeSubdir, setFileExt, listFiles);
 			else {
@@ -233,50 +231,56 @@ int CScreenSaver::GetFileList(IN const char* pszPath, IN bool fIncludeSubdir, IN
 
 	FindClose(hFindFile);
 
-	return listFiles.size();
+	return static_cast<UINT>(listFiles.size());
 }
 
 
 void CALLBACK CScreenSaver::OnTimer(IN HWND hWnd, IN UINT /*uMsg*/, IN UINT /*idEvent*/, IN DWORD /*dwTime*/)
 {
-	TCHAR szText[] = {0, 0};
+	char szText[] = {0, 0};
 	CParser::BlockType enuType = m_pIDEImitate->GetNextSymbol(&szText[0]);
 
 	if (enuType == CParser::BTEOF) {
-		//Load next file
 		if (m_listFiles.empty()) {
-			m_pIDEImitate->SetContent("/*\nSorry, there are no source files in folder.\nPlease check options...........................\n*/");
+			//Set default content
+			HRSRC hRsrc = FindResource(NULL, MAKEINTRESOURCE(IDR_SAMPLECODE), L"Images");
+			if (hRsrc) {
+				const char* lpRsrc = static_cast<const char*>(LoadResource(NULL, hRsrc));
+				if (lpRsrc)
+					m_pIDEImitate->SetContent(lpRsrc);
+				FreeResource(hRsrc);
+			}
 			//Set window title
-			TCHAR pszWndTitle[1024];
-			sprintf(pszWndTitle, m_pIDEImitate->GetWndTitle(), "File not found");
+			wchar_t pszWndTitle[1024];
+			swprintf_s(pszWndTitle, m_pIDEImitate->GetWndTitle(), L"[File not found]");
 			SetWindowText(hWnd, pszWndTitle);
 		}
 		else {
 			int nIndex = int(m_listFiles.size() * rand() / (RAND_MAX + 1.0));
-			list<string>::const_iterator it = m_listFiles.begin();
+			list<wstring>::const_iterator it = m_listFiles.begin();
 			advance(it, nIndex);
-			string strFileName = *it;
+			wstring strFileName = *it;
 			m_pIDEImitate->LoadContent(strFileName.c_str());
 
 			//Set window title
-			TCHAR pszWndTitle[1024];
-			sprintf(pszWndTitle, m_pIDEImitate->GetWndTitle(), strFileName.substr(strFileName.find_last_of('\\') + 1).c_str());
+			wchar_t pszWndTitle[1024];
+			swprintf_s(pszWndTitle, m_pIDEImitate->GetWndTitle(), strFileName.substr(strFileName.find_last_of('\\') + 1).c_str());
 			SetWindowText(hWnd, pszWndTitle);
 		}
-		SetWindowText(m_hRichEdit, _T(""));	//Clear window
+		SetWindowText(m_hRichEdit, L"");	//Clear window
 	}
 	else {
 		GETTEXTLENGTHEX gtl;
 		ZeroMemory(&gtl, sizeof(gtl));
 		gtl.codepage = CP_ACP;
 		gtl.flags = GTL_NUMCHARS;
-		DWORD dwCharCount = SendMessage(m_hRichEdit, EM_GETTEXTLENGTHEX, (WPARAM)&gtl, 0);
+		LONG dwCharCount = static_cast<LONG>(SendMessage(m_hRichEdit, EM_GETTEXTLENGTHEX, (WPARAM)&gtl, 0));
 
 		CHARRANGE cr;
 		cr.cpMin = cr.cpMax = dwCharCount;
 		SendMessage(m_hRichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
 
-		SendMessage(m_hRichEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)szText);
+		SendMessageA(m_hRichEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)szText);
 
 		if (szText[0] != '\n' && szText[0] != '\t' && szText[0] != ' ') {
 			cr.cpMin = dwCharCount;
