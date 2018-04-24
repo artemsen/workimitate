@@ -124,14 +124,32 @@ const wchar_t* _stl[] = {
 
 //! C++ preprocessor directives
 const wchar_t* _preprocessor[] = {
-	L"__TIME__", L"__DATE__", L"__FILE__", L"__LINE__", L"__FUNCTION__",
+	L"__TIMESTAMP__", L"__TIME__", L"__DATE__",
+	L"__FILE__", L"__LINE__", L"__FUNCTION__", L"__STDC__",
 	L"__cplusplus", L"lib", L"comment", L"defined"
 };
 
 //! C++ win32 defined types
-const wchar_t* _types[] = {
-	L"BYTE", L"WORD", L"DWORD", L"QWORD",
-	L"LPARAM", L"WPARAM"
+const wchar_t* _win_types[] = {
+ L"APIENTRY", L"ATOM", L"BOOL", L"BOOLEAN", L"BYTE", L"CALLBACK", L"CCHAR", L"CHAR", L"COLORREF", L"CONST",
+ L"DWORD", L"DWORD_PTR", L"DWORD32", L"DWORD64", L"DWORDLONG", L"FLOAT", L"HACCEL", L"HALF_PTR", L"HANDLE",
+ L"HBITMAP", L"HBRUSH", L"HCOLORSPACE", L"HCONV", L"HCONVLIST", L"HCURSOR", L"HDC", L"HDDEDATA", L"HDESK",
+ L"HDROP", L"HDWP", L"HENHMETAFILE", L"HFILE", L"HFONT", L"HGDIOBJ", L"HGLOBAL", L"HHOOK", L"HICON",
+ L"HINSTANCE", L"HKEY", L"HKL", L"HLOCAL", L"HMENU", L"HMETAFILE", L"HMODULE", L"HMONITOR", L"HPALETTE",
+ L"HPEN", L"HRESULT", L"HRGN", L"HRSRC", L"HSZ", L"HWINSTA", L"HWND", L"INT", L"INT_PTR", L"INT16", L"INT32",
+ L"INT64", L"INT8", L"LANGID", L"LCID", L"LCTYPE", L"LGRPID", L"LONG", L"LONG_PTR", L"LONG32", L"LONG64",
+ L"LONGLONG", L"LPARAM", L"LPBOOL", L"LPBYTE", L"LPCOLORREF", L"LPCSTR", L"LPCTSTR", L"LPCVOID", L"LPCWSTR",
+ L"LPDWORD", L"LPHANDLE", L"LPINT", L"LPLONG", L"LPSTR", L"LPTSTR", L"LPVOID", L"LPWORD", L"LPWSTR", L"LRESULT",
+ L"PBOOL", L"PBOOLEAN", L"PBYTE", L"PCHAR", L"PCSTR", L"PCTSTR", L"PCWSTR", L"PDWORD", L"PDWORD_PTR",
+ L"PDWORD32", L"PDWORD64", L"PDWORDLONG", L"PFLOAT", L"PHALF_PTR", L"PHANDLE", L"PHKEY", L"PINT", L"PINT_PTR",
+ L"PINT16", L"PINT32", L"PINT64", L"PINT8", L"PLCID", L"PLONG", L"PLONG_PTR", L"PLONG32", L"PLONG64",
+ L"PLONGLONG", L"POINTER_32", L"POINTER_64", L"POINTER_SIGNED", L"POINTER_UNSIGNED", L"PSHORT", L"PSIZE_T",
+ L"PSSIZE_T", L"PSTR", L"PTBYTE", L"PTCHAR", L"PTSTR", L"PUCHAR", L"PUHALF_PTR", L"PUINT", L"PUINT_PTR",
+ L"PUINT16", L"PUINT32", L"PUINT64", L"PUINT8", L"PULONG", L"PULONG_PTR", L"PULONG32", L"PULONG64",
+ L"PULONGLONG", L"PUSHORT", L"PVOID", L"PWCHAR", L"PWORD", L"PWSTR", L"QWORD", L"SC_HANDLE", L"SC_LOCK",
+ L"SERVICE_STATUS_HANDLE", L"SHORT", L"SIZE_T", L"SSIZE_T", L"TBYTE", L"TCHAR", L"UCHAR", L"UHALF_PTR",
+ L"UINT", L"UINT_PTR", L"UINT16", L"UINT32", L"UINT64", L"UINT8", L"ULONG", L"ULONG_PTR", L"ULONG32", L"ULONG64",
+ L"ULONGLONG", L"UNICODE_STRING", L"USHORT", L"USN", L"VOID", L"WCHAR", L"WINAPI", L"WORD", L"WPARAM"
 };
 
 
@@ -339,16 +357,13 @@ void parser::parse_next_token()
 	else if (_content[_next_tok_pos] == '\"' || _content[_next_tok_pos] == '\'') {
 		_curr_tok = tok_quoted;
 		const bool single_quoted = _content[_next_tok_pos] == '\'';
-		size_t end_pos = _next_tok_pos + 1;
-		while (end_pos < _content.length()) {
-			end_pos = _content.find(single_quoted ? '\'' : '\"', end_pos);
-			if (end_pos == string::npos)
-				end_pos = _content.length();
-			else {
-				if (_content[end_pos - 1] != '\\' || (_content[end_pos - 1] == '\\' && _content[end_pos - 2] == '\\')) {
-					++end_pos;
-					break;
-				}
+		size_t end_pos = _next_tok_pos;
+		while (++end_pos < _content.length()) {
+			if (_content[end_pos] == '\\')
+				++end_pos;
+			else if (_content[end_pos] == (single_quoted ? '\'' : '\"')) {
+				++end_pos;
+				break;
 			}
 		}
 		_next_tok_pos = end_pos;
@@ -382,17 +397,8 @@ void parser::parse_next_token()
 		}
 
 		//Check for win32 defined types
-		for (size_t i = 0; _curr_tok == tok_normal && i < sizeof(_types) / sizeof(_types[0]); ++i) {
-			if (current_word.compare(_types[i]) == 0)
-				_curr_tok = tok_class;
-		}
-
-		//Check for win32 types (uppercase started with 'H': HANDLE, HMODULE... etc)
-		if (_curr_tok == tok_normal && current_word.length() > 1 && current_word[0] == 'H') {
-			size_t check = 0;
-			while (check < current_word.length() && isupper(current_word[check]))
-				++check;
-			if (check == current_word.length())
+		for (size_t i = 0; _curr_tok == tok_normal && i < sizeof(_win_types) / sizeof(_win_types[0]); ++i) {
+			if (current_word.compare(_win_types[i]) == 0)
 				_curr_tok = tok_class;
 		}
 

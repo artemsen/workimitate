@@ -1,15 +1,17 @@
-WorkImitate screen saver 1.3
+WorkImitate screen saver 1.4
 ****************************
-WorkImitate - is a screen saver for MS Windows developers,
-that imitate real work in some IDE:
+
+WorkImitate - is a screen saver that simulates the work in some development 
+environments (IDE):
  - Microsoft Visual Studio 11;
  - Microsoft Visual Studio 2008;
  - Microsoft Visual C++ 6;
  - Metrowerks CodeWarrior;
  - IntelliJ IDEA;
  - Escipse.
-You don't need to install this IDE - just configure
-screen saver - it has own virtual interface.
+
+You don't need to install this IDE - just configure screen saver - it has 
+own virtual interface.
 
 Installation:
 ****************************

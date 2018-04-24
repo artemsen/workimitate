@@ -292,10 +292,9 @@ void CALLBACK screen_saver::on_timer(HWND wnd, UINT /*msg*/, UINT_PTR /*event*/,
 	CHARRANGE cr;
 	cr.cpMin = cr.cpMax = char_count;
 	SendMessage(inst->_rich_edit, EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&cr));
-
 	SendMessage(inst->_rich_edit, EM_REPLACESEL, FALSE, reinterpret_cast<LPARAM>(text));
 
-	if (text[0] != '\r' && text[0] != '\n' && text[0] != '\t' && text[0] != ' ') {
+	if (text[0] > ' ') {
 		cr.cpMin = char_count;
 		cr.cpMax = -1;
 		SendMessage(inst->_rich_edit, EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&cr));
